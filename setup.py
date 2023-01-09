@@ -40,10 +40,11 @@ FULLVERSION = versioneer.get_version()
 # 1.22.0 ... -> ISRELEASED == True, VERSION == 1.22.0
 # 1.22.0rc1 ... -> ISRELEASED == True, VERSION == 1.22.0
 ISRELEASED = re.search(r'(dev|\+)', FULLVERSION) is None
-_V_MATCH = re.match(r'(\d+)\.(\d+)\.(\d+)', FULLVERSION)
-if _V_MATCH is None:
-    raise RuntimeError(f'Cannot parse version {FULLVERSION}')
-MAJOR, MINOR, MICRO = _V_MATCH.groups()
+#_V_MATCH = re.match(r'(\d+)\.(\d+)\.(\d+)', FULLVERSION)
+#if _V_MATCH is None:
+#    raise RuntimeError(f'Cannot parse version {FULLVERSION}')
+#MAJOR, MINOR, MICRO = _V_MATCH.groups()
+MAJOR, MINOR, MICRO = 1, 24, 1
 VERSION = '{}.{}.{}'.format(MAJOR, MINOR, MICRO)
 
 # The first version not in the `Programming Language :: Python :: ...` classifiers below

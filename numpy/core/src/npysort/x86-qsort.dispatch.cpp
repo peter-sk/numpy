@@ -276,6 +276,7 @@ template <typename vtype, typename mm_t>
 void
 COEX(mm_t &a, mm_t &b)
 {
+    printf("STU\n");
     mm_t temp = a;
     a = vtype::min(a, b);
     b = vtype::max(temp, b);
@@ -745,6 +746,7 @@ template <typename vtype, typename type_t>
 static inline void
 qsort_(type_t *arr, npy_intp left, npy_intp right, npy_int max_iters)
 {
+    printf("VWX\n");
     /*
      * Resort to heapsort if quicksort isn't making any progress
      */
@@ -806,6 +808,7 @@ replace_inf_with_nan(npy_float *arr, npy_intp arrsize, npy_intp nan_count)
 NPY_NO_EXPORT void
 NPY_CPU_DISPATCH_CURFX(x86_quicksort_int)(void *arr, npy_intp arrsize)
 {
+    printf("PQR\n");
     if (arrsize > 1) {
         qsort_<vector<npy_int>, npy_int>((npy_int *)arr, 0, arrsize - 1,
                                          2 * (npy_int)log2(arrsize));

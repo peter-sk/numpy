@@ -90,12 +90,15 @@ template <>
 struct x86_dispatch<npy::int_tag> {
     static bool quicksort(npy_int *start, npy_intp num)
     {
+        printf("GHI\n");
         void (*dispfunc)(void *, npy_intp) = nullptr;
         NPY_CPU_DISPATCH_CALL_XB(dispfunc = x86_quicksort_int);
         if (dispfunc) {
+            printf("JKL\n");
             (*dispfunc)(start, num);
             return true;
         }
+        printf("MNO\n");
         return false;
     }
 };
@@ -134,9 +137,10 @@ template <typename Tag, typename type>
 static int
 quicksort_(type *start, npy_intp num)
 {
+    printf("ABC\n");
     if (x86_dispatch<Tag>::quicksort(start, num))
         return 0;
-
+    printf("DEF\n");
     type vp;
     type *pl = start;
     type *pr = pl + num - 1;
