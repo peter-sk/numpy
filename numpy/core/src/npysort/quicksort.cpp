@@ -55,6 +55,7 @@
 #include "npysort_heapsort.h"
 #include "numpy_tag.h"
 
+#include "sn.h"
 #include "x86-qsort.h"
 #include <cstdlib>
 #include <utility>
@@ -69,7 +70,7 @@
  * we store two pointers each time
  */
 #define PYA_QS_STACK (NPY_BITSOF_INTP * 2)
-#define SMALL_QUICKSORT 15
+#define SMALL_QUICKSORT 128
 #define SMALL_MERGESORT 20
 #define SMALL_STRING 16
 
@@ -87,13 +88,22 @@ struct x86_dispatch {
 };
 
 template <>
+struct x86_dispatch<npy::long_tag> {
+    static bool quicksort(npy_int64 *start, npy_intp num)
+    {
+        //printf("YZA\n");
+        return false;
+    }
+};
+
+template <>
 struct x86_dispatch<npy::int_tag> {
     static bool quicksort(npy_int *start, npy_intp num)
     {
         void (*dispfunc)(void *, npy_intp) = nullptr;
         NPY_CPU_DISPATCH_CALL_XB(dispfunc = x86_quicksort_int);
         if (dispfunc) {
-            printf("x86_quicksort_int\n");
+            //printf("x86_quicksort_int\n");
             (*dispfunc)(start, num);
             return true;
         }
@@ -131,13 +141,28 @@ struct x86_dispatch<npy::float_tag> {
 
 }  // namespace
 
+template <typename Tag> static
+void base_case(npy_cfloat *pl, npy_cfloat *pr) {
+    npy_cfloat *pi, *pj, *pk;
+    npy_cfloat vp;
+    for (pi = pl + 1; pi <= pr; ++pi) {
+        vp = *pi;
+        pj = pi;
+        pk = pi - 1;
+        while (pj > pl && Tag::less(vp, *pk)) {
+            *pj-- = *pk--;
+        }
+        *pj = vp;
+    }
+}
+
 template <typename Tag, typename type>
 static int
 quicksort_(type *start, npy_intp num)
 {
     if (x86_dispatch<Tag>::quicksort(start, num))
         return 0;
-    printf("quicksort_fallback\n");
+    //printf("quicksort_int_fallback\n");
     type vp;
     type *pl = start;
     type *pr = pl + num - 1;
@@ -206,6 +231,850 @@ quicksort_(type *start, npy_intp num)
                 *pj-- = *pk--;
             }
             *pj = vp;
+        }
+    stack_pop:
+        if (sptr == stack) {
+            break;
+        }
+        pr = *(--sptr);
+        pl = *(--sptr);
+        cdepth = *(--psdepth);
+    }
+
+    return 0;
+}
+
+static int
+quicksort_int(int *start, npy_intp num)
+{
+    //printf("quicksort_int\n");
+    int vp;
+    int *pl = start;
+    int *pr = pl + num - 1;
+    int *stack[PYA_QS_STACK];
+    int **sptr = stack;
+    int *pm, *pi, *pj, *pk;
+    int depth[PYA_QS_STACK];
+    int *psdepth = depth;
+    int cdepth = npy_get_msb(num) * 2;
+
+    for (;;) {
+        if (NPY_UNLIKELY(cdepth < 0)) {
+            heapsort_<npy::int_tag>(pl, pr - pl + 1);
+            goto stack_pop;
+        }
+        while ((pr - pl) > SMALL_QUICKSORT) {
+            /* quicksort partition */
+            pm = pl + ((pr - pl) >> 1);
+            if (*pm < *pl) {
+                std::swap(*pm, *pl);
+            }
+            if (*pr < *pm) {
+                std::swap(*pr, *pm);
+            }
+            if (*pm < *pl) {
+                std::swap(*pm, *pl);
+            }
+            vp = *pm;
+            pi = pl;
+            pj = pr - 1;
+            std::swap(*pm, *pj);
+            for (;;) {
+                do {
+                    ++pi;
+                } while (*pi < vp);
+                do {
+                    --pj;
+                } while (vp < *pj);
+                if (pi >= pj) {
+                    break;
+                }
+                std::swap(*pi, *pj);
+            }
+            pk = pr - 1;
+            std::swap(*pi, *pk);
+            /* push largest partition on stack */
+            if (pi - pl < pr - pi) {
+                *sptr++ = pi + 1;
+                *sptr++ = pr;
+                pr = pi - 1;
+            }
+            else {
+                *sptr++ = pl;
+                *sptr++ = pi - 1;
+                pl = pi + 1;
+            }
+            *psdepth++ = --cdepth;
+        }
+
+        switch (pr-pl+1) {
+            case 2:
+            sort2<int>(pl);
+            break;
+            case 3:
+            sort3<int>(pl);
+            break;
+            case 4:
+            sort4<int>(pl);
+            break;
+            case 5:
+            sort5<int>(pl);
+            break;
+            case 6:
+            sort6<int>(pl);
+            break;
+            case 7:
+            sort7<int>(pl);
+            break;
+            case 8:
+            sort8<int>(pl);
+            break;
+            case 9:
+            sort9<int>(pl);
+            break;
+            case 10:
+            sort10<int>(pl);
+            break;
+            case 11:
+            sort11<int>(pl);
+            break;
+            case 12:
+            sort12<int>(pl);
+            break;
+            case 13:
+            sort13<int>(pl);
+            break;
+            case 14:
+            sort14<int>(pl);
+            break;
+            case 15:
+            sort15<int>(pl);
+            break;
+            case 16:
+            sort16<int>(pl);
+            break;
+            case 17:
+            sort17<int>(pl);
+            break;
+            case 18:
+            sort18<int>(pl);
+            break;
+            case 19:
+            sort19<int>(pl);
+            break;
+            case 20:
+            sort20<int>(pl);
+            break;
+            case 21:
+            sort21<int>(pl);
+            break;
+            case 22:
+            sort22<int>(pl);
+            break;
+            case 23:
+            sort23<int>(pl);
+            break;
+            case 24:
+            sort24<int>(pl);
+            break;
+            case 25:
+            sort25<int>(pl);
+            break;
+            case 26:
+            sort26<int>(pl);
+            break;
+            case 27:
+            sort27<int>(pl);
+            break;
+            case 28:
+            sort28<int>(pl);
+            break;
+            case 29:
+            sort29<int>(pl);
+            break;
+            case 30:
+            sort30<int>(pl);
+            break;
+            case 31:
+            sort31<int>(pl);
+            break;
+            case 32:
+            sort32<int>(pl);
+            break;
+            case 33:
+            sort33<int>(pl);
+            break;
+            case 34:
+            sort34<int>(pl);
+            break;
+            case 35:
+            sort35<int>(pl);
+            break;
+            case 36:
+            sort36<int>(pl);
+            break;
+            case 37:
+            sort37<int>(pl);
+            break;
+            case 38:
+            sort38<int>(pl);
+            break;
+            case 39:
+            sort39<int>(pl);
+            break;
+            case 40:
+            sort40<int>(pl);
+            break;
+            case 41:
+            sort41<int>(pl);
+            break;
+            case 42:
+            sort42<int>(pl);
+            break;
+            case 43:
+            sort43<int>(pl);
+            break;
+            case 44:
+            sort44<int>(pl);
+            break;
+            case 45:
+            sort45<int>(pl);
+            break;
+            case 46:
+            sort46<int>(pl);
+            break;
+            case 47:
+            sort47<int>(pl);
+            break;
+            case 48:
+            sort48<int>(pl);
+            break;
+            case 49:
+            sort49<int>(pl);
+            break;
+            case 50:
+            sort50<int>(pl);
+            break;
+            case 51:
+            sort51<int>(pl);
+            break;
+            case 52:
+            sort52<int>(pl);
+            break;
+            case 53:
+            sort53<int>(pl);
+            break;
+            case 54:
+            sort54<int>(pl);
+            break;
+            case 55:
+            sort55<int>(pl);
+            break;
+            case 56:
+            sort56<int>(pl);
+            break;
+            case 57:
+            sort57<int>(pl);
+            break;
+            case 58:
+            sort58<int>(pl);
+            break;
+            case 59:
+            sort59<int>(pl);
+            break;
+            case 60:
+            sort60<int>(pl);
+            break;
+            case 61:
+            sort61<int>(pl);
+            break;
+            case 62:
+            sort62<int>(pl);
+            break;
+            case 63:
+            sort63<int>(pl);
+            break;
+            case 64:
+            sort64<int>(pl);
+            break;
+            case 65:
+            sort65<int>(pl);
+            break;
+            case 66:
+            sort66<int>(pl);
+            break;
+            case 67:
+            sort67<int>(pl);
+            break;
+            case 68:
+            sort68<int>(pl);
+            break;
+            case 69:
+            sort69<int>(pl);
+            break;
+            case 70:
+            sort70<int>(pl);
+            break;
+            case 71:
+            sort71<int>(pl);
+            break;
+            case 72:
+            sort72<int>(pl);
+            break;
+            case 73:
+            sort73<int>(pl);
+            break;
+            case 74:
+            sort74<int>(pl);
+            break;
+            case 75:
+            sort75<int>(pl);
+            break;
+            case 76:
+            sort76<int>(pl);
+            break;
+            case 77:
+            sort77<int>(pl);
+            break;
+            case 78:
+            sort78<int>(pl);
+            break;
+            case 79:
+            sort79<int>(pl);
+            break;
+            case 80:
+            sort80<int>(pl);
+            break;
+            case 81:
+            sort81<int>(pl);
+            break;
+            case 82:
+            sort82<int>(pl);
+            break;
+            case 83:
+            sort83<int>(pl);
+            break;
+            case 84:
+            sort84<int>(pl);
+            break;
+            case 85:
+            sort85<int>(pl);
+            break;
+            case 86:
+            sort86<int>(pl);
+            break;
+            case 87:
+            sort87<int>(pl);
+            break;
+            case 88:
+            sort88<int>(pl);
+            break;
+            case 89:
+            sort89<int>(pl);
+            break;
+            case 90:
+            sort90<int>(pl);
+            break;
+            case 91:
+            sort91<int>(pl);
+            break;
+            case 92:
+            sort92<int>(pl);
+            break;
+            case 93:
+            sort93<int>(pl);
+            break;
+            case 94:
+            sort94<int>(pl);
+            break;
+            case 95:
+            sort95<int>(pl);
+            break;
+            case 96:
+            sort96<int>(pl);
+            break;
+            case 97:
+            sort97<int>(pl);
+            break;
+            case 98:
+            sort98<int>(pl);
+            break;
+            case 99:
+            sort99<int>(pl);
+            break;
+            case 100:
+            sort100<int>(pl);
+            break;
+            case 101:
+            sort101<int>(pl);
+            break;
+            case 102:
+            sort102<int>(pl);
+            break;
+            case 103:
+            sort103<int>(pl);
+            break;
+            case 104:
+            sort104<int>(pl);
+            break;
+            case 105:
+            sort105<int>(pl);
+            break;
+            case 106:
+            sort106<int>(pl);
+            break;
+            case 107:
+            sort107<int>(pl);
+            break;
+            case 108:
+            sort108<int>(pl);
+            break;
+            case 109:
+            sort109<int>(pl);
+            break;
+            case 110:
+            sort110<int>(pl);
+            break;
+            case 111:
+            sort111<int>(pl);
+            break;
+            case 112:
+            sort112<int>(pl);
+            break;
+            case 113:
+            sort113<int>(pl);
+            break;
+            case 114:
+            sort114<int>(pl);
+            break;
+            case 115:
+            sort115<int>(pl);
+            break;
+            case 116:
+            sort116<int>(pl);
+            break;
+            case 117:
+            sort117<int>(pl);
+            break;
+            case 118:
+            sort118<int>(pl);
+            break;
+            case 119:
+            sort119<int>(pl);
+            break;
+            case 120:
+            sort120<int>(pl);
+            break;
+            case 121:
+            sort121<int>(pl);
+            break;
+            case 122:
+            sort122<int>(pl);
+            break;
+            case 123:
+            sort123<int>(pl);
+            break;
+            case 124:
+            sort124<int>(pl);
+            break;
+            case 125:
+            sort125<int>(pl);
+            break;
+            case 126:
+            sort126<int>(pl);
+            break;
+            case 127:
+            sort127<int>(pl);
+            break;
+            case 128:
+            sort128<int>(pl);
+            break;
+/*            case 129:
+            sort129<int>(pl);
+            break;
+            case 130:
+            sort130<int>(pl);
+            break;
+            case 131:
+            sort131<int>(pl);
+            break;
+            case 132:
+            sort132<int>(pl);
+            break;
+            case 133:
+            sort133<int>(pl);
+            break;
+            case 134:
+            sort134<int>(pl);
+            break;
+            case 135:
+            sort135<int>(pl);
+            break;
+            case 136:
+            sort136<int>(pl);
+            break;
+            case 137:
+            sort137<int>(pl);
+            break;
+            case 138:
+            sort138<int>(pl);
+            break;
+            case 139:
+            sort139<int>(pl);
+            break;
+            case 140:
+            sort140<int>(pl);
+            break;
+            case 141:
+            sort141<int>(pl);
+            break;
+            case 142:
+            sort142<int>(pl);
+            break;
+            case 143:
+            sort143<int>(pl);
+            break;
+            case 144:
+            sort144<int>(pl);
+            break;
+            case 145:
+            sort145<int>(pl);
+            break;
+            case 146:
+            sort146<int>(pl);
+            break;
+            case 147:
+            sort147<int>(pl);
+            break;
+            case 148:
+            sort148<int>(pl);
+            break;
+            case 149:
+            sort149<int>(pl);
+            break;
+            case 150:
+            sort150<int>(pl);
+            break;
+            case 151:
+            sort151<int>(pl);
+            break;
+            case 152:
+            sort152<int>(pl);
+            break;
+            case 153:
+            sort153<int>(pl);
+            break;
+            case 154:
+            sort154<int>(pl);
+            break;
+            case 155:
+            sort155<int>(pl);
+            break;
+            case 156:
+            sort156<int>(pl);
+            break;
+            case 157:
+            sort157<int>(pl);
+            break;
+            case 158:
+            sort158<int>(pl);
+            break;
+            case 159:
+            sort159<int>(pl);
+            break;
+            case 160:
+            sort160<int>(pl);
+            break;
+            case 161:
+            sort161<int>(pl);
+            break;
+            case 162:
+            sort162<int>(pl);
+            break;
+            case 163:
+            sort163<int>(pl);
+            break;
+            case 164:
+            sort164<int>(pl);
+            break;
+            case 165:
+            sort165<int>(pl);
+            break;
+            case 166:
+            sort166<int>(pl);
+            break;
+            case 167:
+            sort167<int>(pl);
+            break;
+            case 168:
+            sort168<int>(pl);
+            break;
+            case 169:
+            sort169<int>(pl);
+            break;
+            case 170:
+            sort170<int>(pl);
+            break;
+            case 171:
+            sort171<int>(pl);
+            break;
+            case 172:
+            sort172<int>(pl);
+            break;
+            case 173:
+            sort173<int>(pl);
+            break;
+            case 174:
+            sort174<int>(pl);
+            break;
+            case 175:
+            sort175<int>(pl);
+            break;
+            case 176:
+            sort176<int>(pl);
+            break;
+            case 177:
+            sort177<int>(pl);
+            break;
+            case 178:
+            sort178<int>(pl);
+            break;
+            case 179:
+            sort179<int>(pl);
+            break;
+            case 180:
+            sort180<int>(pl);
+            break;
+            case 181:
+            sort181<int>(pl);
+            break;
+            case 182:
+            sort182<int>(pl);
+            break;
+            case 183:
+            sort183<int>(pl);
+            break;
+            case 184:
+            sort184<int>(pl);
+            break;
+            case 185:
+            sort185<int>(pl);
+            break;
+            case 186:
+            sort186<int>(pl);
+            break;
+            case 187:
+            sort187<int>(pl);
+            break;
+            case 188:
+            sort188<int>(pl);
+            break;
+            case 189:
+            sort189<int>(pl);
+            break;
+            case 190:
+            sort190<int>(pl);
+            break;
+            case 191:
+            sort191<int>(pl);
+            break;
+            case 192:
+            sort192<int>(pl);
+            break;
+            case 193:
+            sort193<int>(pl);
+            break;
+            case 194:
+            sort194<int>(pl);
+            break;
+            case 195:
+            sort195<int>(pl);
+            break;
+            case 196:
+            sort196<int>(pl);
+            break;
+            case 197:
+            sort197<int>(pl);
+            break;
+            case 198:
+            sort198<int>(pl);
+            break;
+            case 199:
+            sort199<int>(pl);
+            break;
+            case 200:
+            sort200<int>(pl);
+            break;
+            case 201:
+            sort201<int>(pl);
+            break;
+            case 202:
+            sort202<int>(pl);
+            break;
+            case 203:
+            sort203<int>(pl);
+            break;
+            case 204:
+            sort204<int>(pl);
+            break;
+            case 205:
+            sort205<int>(pl);
+            break;
+            case 206:
+            sort206<int>(pl);
+            break;
+            case 207:
+            sort207<int>(pl);
+            break;
+            case 208:
+            sort208<int>(pl);
+            break;
+            case 209:
+            sort209<int>(pl);
+            break;
+            case 210:
+            sort210<int>(pl);
+            break;
+            case 211:
+            sort211<int>(pl);
+            break;
+            case 212:
+            sort212<int>(pl);
+            break;
+            case 213:
+            sort213<int>(pl);
+            break;
+            case 214:
+            sort214<int>(pl);
+            break;
+            case 215:
+            sort215<int>(pl);
+            break;
+            case 216:
+            sort216<int>(pl);
+            break;
+            case 217:
+            sort217<int>(pl);
+            break;
+            case 218:
+            sort218<int>(pl);
+            break;
+            case 219:
+            sort219<int>(pl);
+            break;
+            case 220:
+            sort220<int>(pl);
+            break;
+            case 221:
+            sort221<int>(pl);
+            break;
+            case 222:
+            sort222<int>(pl);
+            break;
+            case 223:
+            sort223<int>(pl);
+            break;
+            case 224:
+            sort224<int>(pl);
+            break;
+            case 225:
+            sort225<int>(pl);
+            break;
+            case 226:
+            sort226<int>(pl);
+            break;
+            case 227:
+            sort227<int>(pl);
+            break;
+            case 228:
+            sort228<int>(pl);
+            break;
+            case 229:
+            sort229<int>(pl);
+            break;
+            case 230:
+            sort230<int>(pl);
+            break;
+            case 231:
+            sort231<int>(pl);
+            break;
+            case 232:
+            sort232<int>(pl);
+            break;
+            case 233:
+            sort233<int>(pl);
+            break;
+            case 234:
+            sort234<int>(pl);
+            break;
+            case 235:
+            sort235<int>(pl);
+            break;
+            case 236:
+            sort236<int>(pl);
+            break;
+            case 237:
+            sort237<int>(pl);
+            break;
+            case 238:
+            sort238<int>(pl);
+            break;
+            case 239:
+            sort239<int>(pl);
+            break;
+            case 240:
+            sort240<int>(pl);
+            break;
+            case 241:
+            sort241<int>(pl);
+            break;
+            case 242:
+            sort242<int>(pl);
+            break;
+            case 243:
+            sort243<int>(pl);
+            break;
+            case 244:
+            sort244<int>(pl);
+            break;
+            case 245:
+            sort245<int>(pl);
+            break;
+            case 246:
+            sort246<int>(pl);
+            break;
+            case 247:
+            sort247<int>(pl);
+            break;
+            case 248:
+            sort248<int>(pl);
+            break;
+            case 249:
+            sort249<int>(pl);
+            break;
+            case 250:
+            sort250<int>(pl);
+            break;
+            case 251:
+            sort251<int>(pl);
+            break;
+            case 252:
+            sort252<int>(pl);
+            break;
+            case 253:
+            sort253<int>(pl);
+            break;
+            case 254:
+            sort254<int>(pl);
+            break;
+            case 255:
+            sort255<int>(pl);
+            break;
+            case 256:
+            sort256<int>(pl);*/
+            break;
+                default:
+                  break;
         }
     stack_pop:
         if (sptr == stack) {
@@ -740,6 +1609,7 @@ quicksort_ushort(void *start, npy_intp n, void *NPY_UNUSED(varr))
 NPY_NO_EXPORT int
 quicksort_int(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
+//    return quicksort_int((npy_int *)start, n);
     return quicksort_<npy::int_tag>((npy_int *)start, n);
 }
 NPY_NO_EXPORT int

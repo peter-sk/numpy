@@ -14,6 +14,9 @@
 extern "C" {
 #endif
 
+NPY_CPU_DISPATCH_DECLARE(NPY_NO_EXPORT void x86_quicksort_int64,
+                         (void *start, npy_intp num))
+
 NPY_CPU_DISPATCH_DECLARE(NPY_NO_EXPORT void x86_quicksort_int,
                          (void *start, npy_intp num))
 

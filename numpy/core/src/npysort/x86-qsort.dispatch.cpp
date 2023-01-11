@@ -95,6 +95,65 @@ template <typename type>
 struct vector;
 
 template <>
+struct vector<npy_int64> {
+    using tag = npy::int_tag;
+    using type_t = npy_int64;
+    using zmm_t = __m512i;
+    using ymm_t = __m256i;
+
+    static type_t type_max() { return NPY_MAX_INT64; }
+    static type_t type_min() { return NPY_MIN_INT64; }
+    static zmm_t zmm_max() { return _mm512_set1_epi64(type_max()); }
+
+    static __mmask8 ge(zmm_t x, zmm_t y)
+    {
+        return _mm512_cmp_epi64_mask(x, y, _MM_CMPINT_NLT);
+    }
+    template <int scale>
+    static ymm_t i64gather(__m512i index, void const *base)
+    {
+        return _mm512_i64gather_epi32(index, base, scale);//fix
+    }
+    static zmm_t loadu(void const *mem) { return _mm512_loadu_si512(mem); }
+    static zmm_t max(zmm_t x, zmm_t y) { return _mm512_max_epi64(x, y); }
+    static void mask_compressstoreu(void *mem, __mmask8 mask, zmm_t x)
+    {
+        return _mm512_mask_compressstoreu_epi64(mem, mask, x);
+    }
+    static zmm_t mask_loadu(zmm_t x, __mmask8 mask, void const *mem)
+    {
+        return _mm512_mask_loadu_epi64(x, mask, mem);
+    }
+    static zmm_t mask_mov(zmm_t x, __mmask8 mask, zmm_t y)
+    {
+        return _mm512_mask_mov_epi64(x, mask, y);
+    }
+    static void mask_storeu(void *mem, __mmask8 mask, zmm_t x)
+    {
+        return _mm512_mask_storeu_epi64(mem, mask, x);
+    }
+    static zmm_t min(zmm_t x, zmm_t y) { return _mm512_min_epi64(x, y); }
+    static zmm_t permutexvar(__m512i idx, zmm_t zmm)
+    {
+        return _mm512_permutexvar_epi64(idx, zmm);
+    }
+    static type_t reducemax(zmm_t v) { return npyv_reduce_max_s64(v); }
+    static type_t reducemin(zmm_t v) { return npyv_reduce_min_s64(v); }
+    static zmm_t set1(type_t v) { return _mm512_set1_epi64(v); }
+    template<__mmask8 mask>
+    static zmm_t shuffle(zmm_t zmm)
+    {
+        return _mm512_shuffle_epi32(zmm, (_MM_PERM_ENUM)mask);//fix
+    }
+    static void storeu(void *mem, zmm_t x)
+    {
+        return _mm512_storeu_si512(mem, x);
+    }
+
+    static ymm_t max(ymm_t x, ymm_t y) { return _mm256_max_epi64(x, y); }
+    static ymm_t min(ymm_t x, ymm_t y) { return _mm256_min_epi64(x, y); }
+};
+template <>
 struct vector<npy_int> {
     using tag = npy::int_tag;
     using type_t = npy_int;
@@ -802,6 +861,16 @@ replace_inf_with_nan(npy_float *arr, npy_intp arrsize, npy_intp nan_count)
 /***************************************
  * C > C++ dispatch
  ***************************************/
+
+NPY_NO_EXPORT void
+NPY_CPU_DISPATCH_CURFX(x86_quicksort_int64)(void *arr, npy_intp arrsize)
+{
+    printf("BCD\n");
+    /*if (arrsize > 1) {
+        qsort_<vector<npy_int64>, npy_int64>((npy_int64 *)arr, 0, arrsize - 1,
+                                         2 * (npy_int64)log2(arrsize));
+    }*/
+}
 
 NPY_NO_EXPORT void
 NPY_CPU_DISPATCH_CURFX(x86_quicksort_int)(void *arr, npy_intp arrsize)
