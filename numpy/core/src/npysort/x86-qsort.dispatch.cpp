@@ -814,8 +814,8 @@ qsort_(type_t *arr, npy_intp left, npy_intp right, npy_int max_iters)
     /*
      * Base case: use bitonic networks to sort arrays <= 128
      */
-    if (right + 1 - left <= 128) {
-        sort_128<vtype>(arr + left, (npy_int)(right + 1 - left));
+    if (right + 1 - left <= 1) {
+        //sort_128<vtype>(arr + left, (npy_int)(right + 1 - left));
         return;
     }
 
