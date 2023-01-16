@@ -55,7 +55,8 @@
 #include "npysort_heapsort.h"
 #include "numpy_tag.h"
 
-#include "sn2.h"
+#include "sn.h"
+//#include "sn2.h"
 #include "x86-qsort.h"
 #include <cstdlib>
 #include <utility>
@@ -306,8 +307,8 @@ quicksort_int(int *start, npy_intp num)
             }
             *psdepth++ = --cdepth;
         }
-        sort256(pl,pr-pl+1);
-/*
+        //sort256(pl,pr-pl+1);
+
         switch (pr-pl+1) {
             case 2:
             sort2<int>(pl);
@@ -498,6 +499,7 @@ quicksort_int(int *start, npy_intp num)
             case 64:
             sort64<int>(pl);
             break;
+/*
             case 65:
             sort65<int>(pl);
             break;
@@ -690,6 +692,7 @@ quicksort_int(int *start, npy_intp num)
             case 128:
             sort128<int>(pl);
             break;
+
             case 129:
             sort129<int>(pl);
             break;
@@ -1074,10 +1077,10 @@ quicksort_int(int *start, npy_intp num)
             case 256:
             sort256<int>(pl);
             break;
+*/
                 default:
                   break;
         }
-*/
     stack_pop:
         if (sptr == stack) {
             break;
@@ -1611,8 +1614,8 @@ quicksort_ushort(void *start, npy_intp n, void *NPY_UNUSED(varr))
 NPY_NO_EXPORT int
 quicksort_int(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
-    return quicksort_int((npy_int *)start, n);
-    //return quicksort_<npy::int_tag>((npy_int *)start, n);
+    //return quicksort_int((npy_int *)start, n);
+    return quicksort_<npy::int_tag>((npy_int *)start, n);
 }
 NPY_NO_EXPORT int
 quicksort_uint(void *start, npy_intp n, void *NPY_UNUSED(varr))

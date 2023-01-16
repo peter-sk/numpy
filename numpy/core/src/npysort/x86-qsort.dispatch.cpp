@@ -476,6 +476,85 @@ bitonic_merge_eight_zmm(zmm_t *zmm)
     zmm[7] = bitonic_merge_zmm<vtype>(zmm_t8);
 }
 
+template <typename vtype, typename zmm_t = typename vtype::zmm_t>
+static inline void
+bitonic_merge_sixteen_zmm(zmm_t *zmm)
+{
+    //DONE
+    zmm_t zmm08r = vtype::permutexvar(_mm512_set_epi32(NETWORK5), zmm[8]);
+    zmm_t zmm09r = vtype::permutexvar(_mm512_set_epi32(NETWORK5), zmm[9]);
+    zmm_t zmm10r = vtype::permutexvar(_mm512_set_epi32(NETWORK5), zmm[10]);
+    zmm_t zmm11r = vtype::permutexvar(_mm512_set_epi32(NETWORK5), zmm[11]);
+    zmm_t zmm12r = vtype::permutexvar(_mm512_set_epi32(NETWORK5), zmm[12]);
+    zmm_t zmm13r = vtype::permutexvar(_mm512_set_epi32(NETWORK5), zmm[13]);
+    zmm_t zmm14r = vtype::permutexvar(_mm512_set_epi32(NETWORK5), zmm[14]);
+    zmm_t zmm15r = vtype::permutexvar(_mm512_set_epi32(NETWORK5), zmm[15]);
+    zmm_t zmm_t01 = vtype::min(zmm[0], zmm15r);
+    zmm_t zmm_t02 = vtype::min(zmm[1], zmm14r);
+    zmm_t zmm_t03 = vtype::min(zmm[2], zmm13r);
+    zmm_t zmm_t04 = vtype::min(zmm[3], zmm12r);
+    zmm_t zmm_t05 = vtype::min(zmm[4], zmm11r);
+    zmm_t zmm_t06 = vtype::min(zmm[5], zmm10r);
+    zmm_t zmm_t07 = vtype::min(zmm[6], zmm09r);
+    zmm_t zmm_t08 = vtype::min(zmm[7], zmm08r);
+    zmm_t zmm_t09 = vtype::permutexvar(_mm512_set_epi32(NETWORK5),
+                                      vtype::max(zmm[7], zmm08r));
+    zmm_t zmm_t10 = vtype::permutexvar(_mm512_set_epi32(NETWORK5),
+                                      vtype::max(zmm[6], zmm09r));
+    zmm_t zmm_t11 = vtype::permutexvar(_mm512_set_epi32(NETWORK5),
+                                      vtype::max(zmm[5], zmm10r));
+    zmm_t zmm_t12 = vtype::permutexvar(_mm512_set_epi32(NETWORK5),
+                                      vtype::max(zmm[4], zmm11r));
+    zmm_t zmm_t13 = vtype::permutexvar(_mm512_set_epi32(NETWORK5),
+                                      vtype::max(zmm[3], zmm12r));
+    zmm_t zmm_t14 = vtype::permutexvar(_mm512_set_epi32(NETWORK5),
+                                      vtype::max(zmm[2], zmm13r));
+    zmm_t zmm_t15 = vtype::permutexvar(_mm512_set_epi32(NETWORK5),
+                                      vtype::max(zmm[1], zmm14r));
+    zmm_t zmm_t16 = vtype::permutexvar(_mm512_set_epi32(NETWORK5),
+                                      vtype::max(zmm[0], zmm15r));
+    COEX<vtype>(zmm_t01, zmm_t05);
+    COEX<vtype>(zmm_t02, zmm_t06);
+    COEX<vtype>(zmm_t03, zmm_t07);
+    COEX<vtype>(zmm_t04, zmm_t08);
+    COEX<vtype>(zmm_t09, zmm_t13);
+    COEX<vtype>(zmm_t10, zmm_t14);
+    COEX<vtype>(zmm_t11, zmm_t15);
+    COEX<vtype>(zmm_t12, zmm_t16);
+    COEX<vtype>(zmm_t01, zmm_t03);
+    COEX<vtype>(zmm_t02, zmm_t04);
+    COEX<vtype>(zmm_t05, zmm_t07);
+    COEX<vtype>(zmm_t06, zmm_t08);
+    COEX<vtype>(zmm_t09, zmm_t11);
+    COEX<vtype>(zmm_t10, zmm_t12);
+    COEX<vtype>(zmm_t13, zmm_t15);
+    COEX<vtype>(zmm_t14, zmm_t16);
+    COEX<vtype>(zmm_t01, zmm_t02);
+    COEX<vtype>(zmm_t03, zmm_t04);
+    COEX<vtype>(zmm_t05, zmm_t06);
+    COEX<vtype>(zmm_t07, zmm_t08);
+    COEX<vtype>(zmm_t09, zmm_t10);
+    COEX<vtype>(zmm_t11, zmm_t12);
+    COEX<vtype>(zmm_t13, zmm_t14);
+    COEX<vtype>(zmm_t15, zmm_t16);
+    zmm[0] = bitonic_merge_zmm<vtype>(zmm_t1);
+    zmm[1] = bitonic_merge_zmm<vtype>(zmm_t2);
+    zmm[2] = bitonic_merge_zmm<vtype>(zmm_t3);
+    zmm[3] = bitonic_merge_zmm<vtype>(zmm_t4);
+    zmm[4] = bitonic_merge_zmm<vtype>(zmm_t5);
+    zmm[5] = bitonic_merge_zmm<vtype>(zmm_t6);
+    zmm[6] = bitonic_merge_zmm<vtype>(zmm_t7);
+    zmm[7] = bitonic_merge_zmm<vtype>(zmm_t8);
+    zmm[8] = bitonic_merge_zmm<vtype>(zmm_t9);
+    zmm[9] = bitonic_merge_zmm<vtype>(zmm_t10);
+    zmm[10] = bitonic_merge_zmm<vtype>(zmm_t11);
+    zmm[11] = bitonic_merge_zmm<vtype>(zmm_t12);
+    zmm[12] = bitonic_merge_zmm<vtype>(zmm_t13);
+    zmm[13] = bitonic_merge_zmm<vtype>(zmm_t14);
+    zmm[14] = bitonic_merge_zmm<vtype>(zmm_t15);
+    zmm[15] = bitonic_merge_zmm<vtype>(zmm_t16);
+}
+
 template <typename vtype, typename type_t>
 static inline void
 sort_16(type_t *arr, npy_int N)
@@ -601,6 +680,137 @@ sort_128(type_t *arr, npy_int N)
     vtype::mask_storeu(arr + 80, load_mask2, zmm[5]);
     vtype::mask_storeu(arr + 96, load_mask3, zmm[6]);
     vtype::mask_storeu(arr + 112, load_mask4, zmm[7]);
+}
+
+template <typename vtype, typename type_t>
+static inline void
+sort_256(type_t *arr, npy_int N)
+{
+    if (N <= 128) {
+        sort_128<vtype>(arr, N);
+        return;
+    }
+    using zmm_t = typename vtype::zmm_t;
+    zmm_t zmm[16];
+    zmm[0] = vtype::loadu(arr);
+    zmm[1] = vtype::loadu(arr + 16);
+    zmm[2] = vtype::loadu(arr + 32);
+    zmm[3] = vtype::loadu(arr + 48);
+    zmm[4] = vtype::loadu(arr + 64);
+    zmm[5] = vtype::loadu(arr + 80);
+    zmm[6] = vtype::loadu(arr + 96);
+    zmm[7] = vtype::loadu(arr + 112);
+    zmm[0] = sort_zmm<vtype>(zmm[0]);
+    zmm[1] = sort_zmm<vtype>(zmm[1]);
+    zmm[2] = sort_zmm<vtype>(zmm[2]);
+    zmm[3] = sort_zmm<vtype>(zmm[3]);
+    zmm[4] = sort_zmm<vtype>(zmm[4]);
+    zmm[5] = sort_zmm<vtype>(zmm[5]);
+    zmm[6] = sort_zmm<vtype>(zmm[6]);
+    zmm[7] = sort_zmm<vtype>(zmm[7]);
+    __mmask16 load_mask1 = 0xFFFF, load_mask2 = 0xFFFF;
+    __mmask16 load_mask3 = 0xFFFF, load_mask4 = 0xFFFF;
+    __mmask16 load_mask5 = 0xFFFF, load_mask6 = 0xFFFF;
+    __mmask16 load_mask7 = 0xFFFF, load_mask8 = 0xFFFF;
+    if (N < 144) {
+        load_mask1 = (0x0001 << (N - 128)) - 0x0001;
+        load_mask2 = 0x0000;
+        load_mask3 = 0x0000;
+        load_mask4 = 0x0000;
+        load_mask5 = 0x0000;
+        load_mask6 = 0x0000;
+        load_mask7 = 0x0000;
+        load_mask8 = 0x0000;
+    }
+    else if (N < 160) {
+        load_mask2 = (0x0001 << (N - 144)) - 0x0001;
+        load_mask3 = 0x0000;
+        load_mask4 = 0x0000;
+        load_mask5 = 0x0000;
+        load_mask6 = 0x0000;
+        load_mask7 = 0x0000;
+        load_mask8 = 0x0000;
+    }
+    else if (N < 176) {
+        load_mask3 = (0x0001 << (N - 160)) - 0x0001;
+        load_mask4 = 0x0000;
+        load_mask5 = 0x0000;
+        load_mask6 = 0x0000;
+        load_mask7 = 0x0000;
+        load_mask8 = 0x0000;
+    }
+    else if (N < 192) {
+        load_mask4 = (0x0001 << (N - 176)) - 0x0001;
+        load_mask5 = 0x0000;
+        load_mask6 = 0x0000;
+        load_mask7 = 0x0000;
+        load_mask8 = 0x0000;
+    }
+    else if (N < 208) {
+        load_mask5 = (0x0001 << (N - 192)) - 0x0001;
+        load_mask6 = 0x0000;
+        load_mask7 = 0x0000;
+        load_mask8 = 0x0000;
+    }
+    else if (N < 224) {
+        load_mask6 = (0x0001 << (N - 208)) - 0x0001;
+        load_mask7 = 0x0000;
+        load_mask8 = 0x0000;
+    }
+    else if (N < 240) {
+        load_mask7 = (0x0001 << (N - 224)) - 0x0001;
+        load_mask8 = 0x0000;
+    }
+    else {
+        load_mask8 = (0x0001 << (N - 240)) - 0x0001;
+    }
+    zmm[8] = vtype::mask_loadu(vtype::zmm_max(), load_mask1, arr + 128);
+    zmm[9] = vtype::mask_loadu(vtype::zmm_max(), load_mask2, arr + 144);
+    zmm[10] = vtype::mask_loadu(vtype::zmm_max(), load_mask3, arr + 160);
+    zmm[11] = vtype::mask_loadu(vtype::zmm_max(), load_mask4, arr + 176);
+    zmm[12] = vtype::mask_loadu(vtype::zmm_max(), load_mask5, arr + 192);
+    zmm[13] = vtype::mask_loadu(vtype::zmm_max(), load_mask6, arr + 208);
+    zmm[14] = vtype::mask_loadu(vtype::zmm_max(), load_mask7, arr + 224);
+    zmm[15] = vtype::mask_loadu(vtype::zmm_max(), load_mask8, arr + 240);
+    zmm[8] = sort_zmm<vtype>(zmm[8]);
+    zmm[9] = sort_zmm<vtype>(zmm[9]);
+    zmm[10] = sort_zmm<vtype>(zmm[10]);
+    zmm[11] = sort_zmm<vtype>(zmm[11]);
+    zmm[12] = sort_zmm<vtype>(zmm[12]);
+    zmm[13] = sort_zmm<vtype>(zmm[13]);
+    zmm[14] = sort_zmm<vtype>(zmm[14]);
+    zmm[15] = sort_zmm<vtype>(zmm[15]);
+    bitonic_merge_two_zmm<vtype>(&zmm[0], &zmm[1]);
+    bitonic_merge_two_zmm<vtype>(&zmm[2], &zmm[3]);
+    bitonic_merge_two_zmm<vtype>(&zmm[4], &zmm[5]);
+    bitonic_merge_two_zmm<vtype>(&zmm[6], &zmm[7]);
+    bitonic_merge_two_zmm<vtype>(&zmm[8], &zmm[9]);
+    bitonic_merge_two_zmm<vtype>(&zmm[10], &zmm[11]);
+    bitonic_merge_two_zmm<vtype>(&zmm[12], &zmm[13]);
+    bitonic_merge_two_zmm<vtype>(&zmm[14], &zmm[15]);
+    bitonic_merge_four_zmm<vtype>(zmm);
+    bitonic_merge_four_zmm<vtype>(zmm + 4);
+    bitonic_merge_four_zmm<vtype>(zmm + 8);
+    bitonic_merge_four_zmm<vtype>(zmm + 12);
+    bitonic_merge_eight_zmm<vtype>(zmm);
+    bitonic_merge_eight_zmm<vtype>(zmm + 8);
+    bitonic_merge_sixteen_zmm<vtype>(zmm);
+    vtype::storeu(arr, zmm[0]);
+    vtype::storeu(arr + 16, zmm[1]);
+    vtype::storeu(arr + 32, zmm[2]);
+    vtype::storeu(arr + 48, zmm[3]);
+    vtype::storeu(arr + 64, zmm[4]);
+    vtype::storeu(arr + 80, zmm[5]);
+    vtype::storeu(arr + 96, zmm[6]);
+    vtype::storeu(arr + 112, zmm[7]);
+    vtype::mask_storeu(arr + 128, load_mask1, zmm[8]);
+    vtype::mask_storeu(arr + 144, load_mask2, zmm[9]);
+    vtype::mask_storeu(arr + 160, load_mask3, zmm[10]);
+    vtype::mask_storeu(arr + 176, load_mask4, zmm[11]);
+    vtype::mask_storeu(arr + 192, load_mask5, zmm[12]);
+    vtype::mask_storeu(arr + 208, load_mask6, zmm[13]);
+    vtype::mask_storeu(arr + 224, load_mask7, zmm[14]);
+    vtype::mask_storeu(arr + 240, load_mask8, zmm[15]);
 }
 
 template <typename type_t>
@@ -814,8 +1024,8 @@ qsort_(type_t *arr, npy_intp left, npy_intp right, npy_int max_iters)
     /*
      * Base case: use bitonic networks to sort arrays <= 128
      */
-    if (right + 1 - left <= 1) {
-        //sort_128<vtype>(arr + left, (npy_int)(right + 1 - left));
+    if (right + 1 - left <= 256) {
+        sort_256<vtype>(arr + left, (npy_int)(right + 1 - left));
         return;
     }
 
