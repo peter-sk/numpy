@@ -71,7 +71,7 @@
  * we store two pointers each time
  */
 #define PYA_QS_STACK (NPY_BITSOF_INTP * 2)
-#define SMALL_QUICKSORT 256
+#define SMALL_QUICKSORT 64
 #define SMALL_MERGESORT 20
 #define SMALL_STRING 16
 
@@ -245,19 +245,19 @@ quicksort_(type *start, npy_intp num)
     return 0;
 }
 
-static int
-quicksort_int(int *start, npy_intp num)
+template <typename type, typename cast> static int
+quicksort_int(type *start, npy_intp num)
 {
     //printf("quicksort_int\n");
     int vp;
-    int *pl = start;
-    int *pr = pl + num - 1;
-    int *stack[PYA_QS_STACK];
-    int **sptr = stack;
-    int *pm, *pi, *pj, *pk;
-    int depth[PYA_QS_STACK];
-    int *psdepth = depth;
-    int cdepth = npy_get_msb(num) * 2;
+    type *pl = start;
+    type *pr = pl + num - 1;
+    type *stack[PYA_QS_STACK];
+    type **sptr = stack;
+    type *pm, *pi, *pj, *pk;
+    type depth[PYA_QS_STACK];
+    type *psdepth = depth;
+    type cdepth = npy_get_msb(num) * 2;
 
     for (;;) {
         if (NPY_UNLIKELY(cdepth < 0)) {
@@ -311,771 +311,771 @@ quicksort_int(int *start, npy_intp num)
 
         switch (pr-pl+1) {
             case 2:
-            sort2<int>(pl);
+            sort2<type,cast>(pl);
             break;
             case 3:
-            sort3<int>(pl);
+            sort3<type,cast>(pl);
             break;
             case 4:
-            sort4<int>(pl);
+            sort4<type,cast>(pl);
             break;
             case 5:
-            sort5<int>(pl);
+            sort5<type,cast>(pl);
             break;
             case 6:
-            sort6<int>(pl);
+            sort6<type,cast>(pl);
             break;
             case 7:
-            sort7<int>(pl);
+            sort7<type,cast>(pl);
             break;
             case 8:
-            sort8<int>(pl);
+            sort8<type,cast>(pl);
             break;
             case 9:
-            sort9<int>(pl);
+            sort9<type,cast>(pl);
             break;
             case 10:
-            sort10<int>(pl);
+            sort10<type,cast>(pl);
             break;
             case 11:
-            sort11<int>(pl);
+            sort11<type,cast>(pl);
             break;
             case 12:
-            sort12<int>(pl);
+            sort12<type,cast>(pl);
             break;
             case 13:
-            sort13<int>(pl);
+            sort13<type,cast>(pl);
             break;
             case 14:
-            sort14<int>(pl);
+            sort14<type,cast>(pl);
             break;
             case 15:
-            sort15<int>(pl);
+            sort15<type,cast>(pl);
             break;
             case 16:
-            sort16<int>(pl);
+            sort16<type,cast>(pl);
             break;
             case 17:
-            sort17<int>(pl);
+            sort17<type,cast>(pl);
             break;
             case 18:
-            sort18<int>(pl);
+            sort18<type,cast>(pl);
             break;
             case 19:
-            sort19<int>(pl);
+            sort19<type,cast>(pl);
             break;
             case 20:
-            sort20<int>(pl);
+            sort20<type,cast>(pl);
             break;
             case 21:
-            sort21<int>(pl);
+            sort21<type,cast>(pl);
             break;
             case 22:
-            sort22<int>(pl);
+            sort22<type,cast>(pl);
             break;
             case 23:
-            sort23<int>(pl);
+            sort23<type,cast>(pl);
             break;
             case 24:
-            sort24<int>(pl);
+            sort24<type,cast>(pl);
             break;
             case 25:
-            sort25<int>(pl);
+            sort25<type,cast>(pl);
             break;
             case 26:
-            sort26<int>(pl);
+            sort26<type,cast>(pl);
             break;
             case 27:
-            sort27<int>(pl);
+            sort27<type,cast>(pl);
             break;
             case 28:
-            sort28<int>(pl);
+            sort28<type,cast>(pl);
             break;
             case 29:
-            sort29<int>(pl);
+            sort29<type,cast>(pl);
             break;
             case 30:
-            sort30<int>(pl);
+            sort30<type,cast>(pl);
             break;
             case 31:
-            sort31<int>(pl);
+            sort31<type,cast>(pl);
             break;
             case 32:
-            sort32<int>(pl);
+            sort32<type,cast>(pl);
             break;
             case 33:
-            sort33<int>(pl);
+            sort33<type,cast>(pl);
             break;
             case 34:
-            sort34<int>(pl);
+            sort34<type,cast>(pl);
             break;
             case 35:
-            sort35<int>(pl);
+            sort35<type,cast>(pl);
             break;
             case 36:
-            sort36<int>(pl);
+            sort36<type,cast>(pl);
             break;
             case 37:
-            sort37<int>(pl);
+            sort37<type,cast>(pl);
             break;
             case 38:
-            sort38<int>(pl);
+            sort38<type,cast>(pl);
             break;
             case 39:
-            sort39<int>(pl);
+            sort39<type,cast>(pl);
             break;
             case 40:
-            sort40<int>(pl);
+            sort40<type,cast>(pl);
             break;
             case 41:
-            sort41<int>(pl);
+            sort41<type,cast>(pl);
             break;
             case 42:
-            sort42<int>(pl);
+            sort42<type,cast>(pl);
             break;
             case 43:
-            sort43<int>(pl);
+            sort43<type,cast>(pl);
             break;
             case 44:
-            sort44<int>(pl);
+            sort44<type,cast>(pl);
             break;
             case 45:
-            sort45<int>(pl);
+            sort45<type,cast>(pl);
             break;
             case 46:
-            sort46<int>(pl);
+            sort46<type,cast>(pl);
             break;
             case 47:
-            sort47<int>(pl);
+            sort47<type,cast>(pl);
             break;
             case 48:
-            sort48<int>(pl);
+            sort48<type,cast>(pl);
             break;
             case 49:
-            sort49<int>(pl);
+            sort49<type,cast>(pl);
             break;
             case 50:
-            sort50<int>(pl);
+            sort50<type,cast>(pl);
             break;
             case 51:
-            sort51<int>(pl);
+            sort51<type,cast>(pl);
             break;
             case 52:
-            sort52<int>(pl);
+            sort52<type,cast>(pl);
             break;
             case 53:
-            sort53<int>(pl);
+            sort53<type,cast>(pl);
             break;
             case 54:
-            sort54<int>(pl);
+            sort54<type,cast>(pl);
             break;
             case 55:
-            sort55<int>(pl);
+            sort55<type,cast>(pl);
             break;
             case 56:
-            sort56<int>(pl);
+            sort56<type,cast>(pl);
             break;
             case 57:
-            sort57<int>(pl);
+            sort57<type,cast>(pl);
             break;
             case 58:
-            sort58<int>(pl);
+            sort58<type,cast>(pl);
             break;
             case 59:
-            sort59<int>(pl);
+            sort59<type,cast>(pl);
             break;
             case 60:
-            sort60<int>(pl);
+            sort60<type,cast>(pl);
             break;
             case 61:
-            sort61<int>(pl);
+            sort61<type,cast>(pl);
             break;
             case 62:
-            sort62<int>(pl);
+            sort62<type,cast>(pl);
             break;
             case 63:
-            sort63<int>(pl);
+            sort63<type,cast>(pl);
             break;
             case 64:
-            sort64<int>(pl);
+            sort64<type,cast>(pl);
             break;
 /*
             case 65:
-            sort65<int>(pl);
+            sort65<type,cast>(pl);
             break;
             case 66:
-            sort66<int>(pl);
+            sort66<type,cast>(pl);
             break;
             case 67:
-            sort67<int>(pl);
+            sort67<type,cast>(pl);
             break;
             case 68:
-            sort68<int>(pl);
+            sort68<type,cast>(pl);
             break;
             case 69:
-            sort69<int>(pl);
+            sort69<type,cast>(pl);
             break;
             case 70:
-            sort70<int>(pl);
+            sort70<type,cast>(pl);
             break;
             case 71:
-            sort71<int>(pl);
+            sort71<type,cast>(pl);
             break;
             case 72:
-            sort72<int>(pl);
+            sort72<type,cast>(pl);
             break;
             case 73:
-            sort73<int>(pl);
+            sort73<type,cast>(pl);
             break;
             case 74:
-            sort74<int>(pl);
+            sort74<type,cast>(pl);
             break;
             case 75:
-            sort75<int>(pl);
+            sort75<type,cast>(pl);
             break;
             case 76:
-            sort76<int>(pl);
+            sort76<type,cast>(pl);
             break;
             case 77:
-            sort77<int>(pl);
+            sort77<type,cast>(pl);
             break;
             case 78:
-            sort78<int>(pl);
+            sort78<type,cast>(pl);
             break;
             case 79:
-            sort79<int>(pl);
+            sort79<type,cast>(pl);
             break;
             case 80:
-            sort80<int>(pl);
+            sort80<type,cast>(pl);
             break;
             case 81:
-            sort81<int>(pl);
+            sort81<type,cast>(pl);
             break;
             case 82:
-            sort82<int>(pl);
+            sort82<type,cast>(pl);
             break;
             case 83:
-            sort83<int>(pl);
+            sort83<type,cast>(pl);
             break;
             case 84:
-            sort84<int>(pl);
+            sort84<type,cast>(pl);
             break;
             case 85:
-            sort85<int>(pl);
+            sort85<type,cast>(pl);
             break;
             case 86:
-            sort86<int>(pl);
+            sort86<type,cast>(pl);
             break;
             case 87:
-            sort87<int>(pl);
+            sort87<type,cast>(pl);
             break;
             case 88:
-            sort88<int>(pl);
+            sort88<type,cast>(pl);
             break;
             case 89:
-            sort89<int>(pl);
+            sort89<type,cast>(pl);
             break;
             case 90:
-            sort90<int>(pl);
+            sort90<type,cast>(pl);
             break;
             case 91:
-            sort91<int>(pl);
+            sort91<type,cast>(pl);
             break;
             case 92:
-            sort92<int>(pl);
+            sort92<type,cast>(pl);
             break;
             case 93:
-            sort93<int>(pl);
+            sort93<type,cast>(pl);
             break;
             case 94:
-            sort94<int>(pl);
+            sort94<type,cast>(pl);
             break;
             case 95:
-            sort95<int>(pl);
+            sort95<type,cast>(pl);
             break;
             case 96:
-            sort96<int>(pl);
+            sort96<type,cast>(pl);
             break;
             case 97:
-            sort97<int>(pl);
+            sort97<type,cast>(pl);
             break;
             case 98:
-            sort98<int>(pl);
+            sort98<type,cast>(pl);
             break;
             case 99:
-            sort99<int>(pl);
+            sort99<type,cast>(pl);
             break;
             case 100:
-            sort100<int>(pl);
+            sort100<type,cast>(pl);
             break;
             case 101:
-            sort101<int>(pl);
+            sort101<type,cast>(pl);
             break;
             case 102:
-            sort102<int>(pl);
+            sort102<type,cast>(pl);
             break;
             case 103:
-            sort103<int>(pl);
+            sort103<type,cast>(pl);
             break;
             case 104:
-            sort104<int>(pl);
+            sort104<type,cast>(pl);
             break;
             case 105:
-            sort105<int>(pl);
+            sort105<type,cast>(pl);
             break;
             case 106:
-            sort106<int>(pl);
+            sort106<type,cast>(pl);
             break;
             case 107:
-            sort107<int>(pl);
+            sort107<type,cast>(pl);
             break;
             case 108:
-            sort108<int>(pl);
+            sort108<type,cast>(pl);
             break;
             case 109:
-            sort109<int>(pl);
+            sort109<type,cast>(pl);
             break;
             case 110:
-            sort110<int>(pl);
+            sort110<type,cast>(pl);
             break;
             case 111:
-            sort111<int>(pl);
+            sort111<type,cast>(pl);
             break;
             case 112:
-            sort112<int>(pl);
+            sort112<type,cast>(pl);
             break;
             case 113:
-            sort113<int>(pl);
+            sort113<type,cast>(pl);
             break;
             case 114:
-            sort114<int>(pl);
+            sort114<type,cast>(pl);
             break;
             case 115:
-            sort115<int>(pl);
+            sort115<type,cast>(pl);
             break;
             case 116:
-            sort116<int>(pl);
+            sort116<type,cast>(pl);
             break;
             case 117:
-            sort117<int>(pl);
+            sort117<type,cast>(pl);
             break;
             case 118:
-            sort118<int>(pl);
+            sort118<type,cast>(pl);
             break;
             case 119:
-            sort119<int>(pl);
+            sort119<type,cast>(pl);
             break;
             case 120:
-            sort120<int>(pl);
+            sort120<type,cast>(pl);
             break;
             case 121:
-            sort121<int>(pl);
+            sort121<type,cast>(pl);
             break;
             case 122:
-            sort122<int>(pl);
+            sort122<type,cast>(pl);
             break;
             case 123:
-            sort123<int>(pl);
+            sort123<type,cast>(pl);
             break;
             case 124:
-            sort124<int>(pl);
+            sort124<type,cast>(pl);
             break;
             case 125:
-            sort125<int>(pl);
+            sort125<type,cast>(pl);
             break;
             case 126:
-            sort126<int>(pl);
+            sort126<type,cast>(pl);
             break;
             case 127:
-            sort127<int>(pl);
+            sort127<type,cast>(pl);
             break;
             case 128:
-            sort128<int>(pl);
+            sort128<type,cast>(pl);
             break;
 
             case 129:
-            sort129<int>(pl);
+            sort129<type,cast>(pl);
             break;
             case 130:
-            sort130<int>(pl);
+            sort130<type,cast>(pl);
             break;
             case 131:
-            sort131<int>(pl);
+            sort131<type,cast>(pl);
             break;
             case 132:
-            sort132<int>(pl);
+            sort132<type,cast>(pl);
             break;
             case 133:
-            sort133<int>(pl);
+            sort133<type,cast>(pl);
             break;
             case 134:
-            sort134<int>(pl);
+            sort134<type,cast>(pl);
             break;
             case 135:
-            sort135<int>(pl);
+            sort135<type,cast>(pl);
             break;
             case 136:
-            sort136<int>(pl);
+            sort136<type,cast>(pl);
             break;
             case 137:
-            sort137<int>(pl);
+            sort137<type,cast>(pl);
             break;
             case 138:
-            sort138<int>(pl);
+            sort138<type,cast>(pl);
             break;
             case 139:
-            sort139<int>(pl);
+            sort139<type,cast>(pl);
             break;
             case 140:
-            sort140<int>(pl);
+            sort140<type,cast>(pl);
             break;
             case 141:
-            sort141<int>(pl);
+            sort141<type,cast>(pl);
             break;
             case 142:
-            sort142<int>(pl);
+            sort142<type,cast>(pl);
             break;
             case 143:
-            sort143<int>(pl);
+            sort143<type,cast>(pl);
             break;
             case 144:
-            sort144<int>(pl);
+            sort144<type,cast>(pl);
             break;
             case 145:
-            sort145<int>(pl);
+            sort145<type,cast>(pl);
             break;
             case 146:
-            sort146<int>(pl);
+            sort146<type,cast>(pl);
             break;
             case 147:
-            sort147<int>(pl);
+            sort147<type,cast>(pl);
             break;
             case 148:
-            sort148<int>(pl);
+            sort148<type,cast>(pl);
             break;
             case 149:
-            sort149<int>(pl);
+            sort149<type,cast>(pl);
             break;
             case 150:
-            sort150<int>(pl);
+            sort150<type,cast>(pl);
             break;
             case 151:
-            sort151<int>(pl);
+            sort151<type,cast>(pl);
             break;
             case 152:
-            sort152<int>(pl);
+            sort152<type,cast>(pl);
             break;
             case 153:
-            sort153<int>(pl);
+            sort153<type,cast>(pl);
             break;
             case 154:
-            sort154<int>(pl);
+            sort154<type,cast>(pl);
             break;
             case 155:
-            sort155<int>(pl);
+            sort155<type,cast>(pl);
             break;
             case 156:
-            sort156<int>(pl);
+            sort156<type,cast>(pl);
             break;
             case 157:
-            sort157<int>(pl);
+            sort157<type,cast>(pl);
             break;
             case 158:
-            sort158<int>(pl);
+            sort158<type,cast>(pl);
             break;
             case 159:
-            sort159<int>(pl);
+            sort159<type,cast>(pl);
             break;
             case 160:
-            sort160<int>(pl);
+            sort160<type,cast>(pl);
             break;
             case 161:
-            sort161<int>(pl);
+            sort161<type,cast>(pl);
             break;
             case 162:
-            sort162<int>(pl);
+            sort162<type,cast>(pl);
             break;
             case 163:
-            sort163<int>(pl);
+            sort163<type,cast>(pl);
             break;
             case 164:
-            sort164<int>(pl);
+            sort164<type,cast>(pl);
             break;
             case 165:
-            sort165<int>(pl);
+            sort165<type,cast>(pl);
             break;
             case 166:
-            sort166<int>(pl);
+            sort166<type,cast>(pl);
             break;
             case 167:
-            sort167<int>(pl);
+            sort167<type,cast>(pl);
             break;
             case 168:
-            sort168<int>(pl);
+            sort168<type,cast>(pl);
             break;
             case 169:
-            sort169<int>(pl);
+            sort169<type,cast>(pl);
             break;
             case 170:
-            sort170<int>(pl);
+            sort170<type,cast>(pl);
             break;
             case 171:
-            sort171<int>(pl);
+            sort171<type,cast>(pl);
             break;
             case 172:
-            sort172<int>(pl);
+            sort172<type,cast>(pl);
             break;
             case 173:
-            sort173<int>(pl);
+            sort173<type,cast>(pl);
             break;
             case 174:
-            sort174<int>(pl);
+            sort174<type,cast>(pl);
             break;
             case 175:
-            sort175<int>(pl);
+            sort175<type,cast>(pl);
             break;
             case 176:
-            sort176<int>(pl);
+            sort176<type,cast>(pl);
             break;
             case 177:
-            sort177<int>(pl);
+            sort177<type,cast>(pl);
             break;
             case 178:
-            sort178<int>(pl);
+            sort178<type,cast>(pl);
             break;
             case 179:
-            sort179<int>(pl);
+            sort179<type,cast>(pl);
             break;
             case 180:
-            sort180<int>(pl);
+            sort180<type,cast>(pl);
             break;
             case 181:
-            sort181<int>(pl);
+            sort181<type,cast>(pl);
             break;
             case 182:
-            sort182<int>(pl);
+            sort182<type,cast>(pl);
             break;
             case 183:
-            sort183<int>(pl);
+            sort183<type,cast>(pl);
             break;
             case 184:
-            sort184<int>(pl);
+            sort184<type,cast>(pl);
             break;
             case 185:
-            sort185<int>(pl);
+            sort185<type,cast>(pl);
             break;
             case 186:
-            sort186<int>(pl);
+            sort186<type,cast>(pl);
             break;
             case 187:
-            sort187<int>(pl);
+            sort187<type,cast>(pl);
             break;
             case 188:
-            sort188<int>(pl);
+            sort188<type,cast>(pl);
             break;
             case 189:
-            sort189<int>(pl);
+            sort189<type,cast>(pl);
             break;
             case 190:
-            sort190<int>(pl);
+            sort190<type,cast>(pl);
             break;
             case 191:
-            sort191<int>(pl);
+            sort191<type,cast>(pl);
             break;
             case 192:
-            sort192<int>(pl);
+            sort192<type,cast>(pl);
             break;
             case 193:
-            sort193<int>(pl);
+            sort193<type,cast>(pl);
             break;
             case 194:
-            sort194<int>(pl);
+            sort194<type,cast>(pl);
             break;
             case 195:
-            sort195<int>(pl);
+            sort195<type,cast>(pl);
             break;
             case 196:
-            sort196<int>(pl);
+            sort196<type,cast>(pl);
             break;
             case 197:
-            sort197<int>(pl);
+            sort197<type,cast>(pl);
             break;
             case 198:
-            sort198<int>(pl);
+            sort198<type,cast>(pl);
             break;
             case 199:
-            sort199<int>(pl);
+            sort199<type,cast>(pl);
             break;
             case 200:
-            sort200<int>(pl);
+            sort200<type,cast>(pl);
             break;
             case 201:
-            sort201<int>(pl);
+            sort201<type,cast>(pl);
             break;
             case 202:
-            sort202<int>(pl);
+            sort202<type,cast>(pl);
             break;
             case 203:
-            sort203<int>(pl);
+            sort203<type,cast>(pl);
             break;
             case 204:
-            sort204<int>(pl);
+            sort204<type,cast>(pl);
             break;
             case 205:
-            sort205<int>(pl);
+            sort205<type,cast>(pl);
             break;
             case 206:
-            sort206<int>(pl);
+            sort206<type,cast>(pl);
             break;
             case 207:
-            sort207<int>(pl);
+            sort207<type,cast>(pl);
             break;
             case 208:
-            sort208<int>(pl);
+            sort208<type,cast>(pl);
             break;
             case 209:
-            sort209<int>(pl);
+            sort209<type,cast>(pl);
             break;
             case 210:
-            sort210<int>(pl);
+            sort210<type,cast>(pl);
             break;
             case 211:
-            sort211<int>(pl);
+            sort211<type,cast>(pl);
             break;
             case 212:
-            sort212<int>(pl);
+            sort212<type,cast>(pl);
             break;
             case 213:
-            sort213<int>(pl);
+            sort213<type,cast>(pl);
             break;
             case 214:
-            sort214<int>(pl);
+            sort214<type,cast>(pl);
             break;
             case 215:
-            sort215<int>(pl);
+            sort215<type,cast>(pl);
             break;
             case 216:
-            sort216<int>(pl);
+            sort216<type,cast>(pl);
             break;
             case 217:
-            sort217<int>(pl);
+            sort217<type,cast>(pl);
             break;
             case 218:
-            sort218<int>(pl);
+            sort218<type,cast>(pl);
             break;
             case 219:
-            sort219<int>(pl);
+            sort219<type,cast>(pl);
             break;
             case 220:
-            sort220<int>(pl);
+            sort220<type,cast>(pl);
             break;
             case 221:
-            sort221<int>(pl);
+            sort221<type,cast>(pl);
             break;
             case 222:
-            sort222<int>(pl);
+            sort222<type,cast>(pl);
             break;
             case 223:
-            sort223<int>(pl);
+            sort223<type,cast>(pl);
             break;
             case 224:
-            sort224<int>(pl);
+            sort224<type,cast>(pl);
             break;
             case 225:
-            sort225<int>(pl);
+            sort225<type,cast>(pl);
             break;
             case 226:
-            sort226<int>(pl);
+            sort226<type,cast>(pl);
             break;
             case 227:
-            sort227<int>(pl);
+            sort227<type,cast>(pl);
             break;
             case 228:
-            sort228<int>(pl);
+            sort228<type,cast>(pl);
             break;
             case 229:
-            sort229<int>(pl);
+            sort229<type,cast>(pl);
             break;
             case 230:
-            sort230<int>(pl);
+            sort230<type,cast>(pl);
             break;
             case 231:
-            sort231<int>(pl);
+            sort231<type,cast>(pl);
             break;
             case 232:
-            sort232<int>(pl);
+            sort232<type,cast>(pl);
             break;
             case 233:
-            sort233<int>(pl);
+            sort233<type,cast>(pl);
             break;
             case 234:
-            sort234<int>(pl);
+            sort234<type,cast>(pl);
             break;
             case 235:
-            sort235<int>(pl);
+            sort235<type,cast>(pl);
             break;
             case 236:
-            sort236<int>(pl);
+            sort236<type,cast>(pl);
             break;
             case 237:
-            sort237<int>(pl);
+            sort237<type,cast>(pl);
             break;
             case 238:
-            sort238<int>(pl);
+            sort238<type,cast>(pl);
             break;
             case 239:
-            sort239<int>(pl);
+            sort239<type,cast>(pl);
             break;
             case 240:
-            sort240<int>(pl);
+            sort240<type,cast>(pl);
             break;
             case 241:
-            sort241<int>(pl);
+            sort241<type,cast>(pl);
             break;
             case 242:
-            sort242<int>(pl);
+            sort242<type,cast>(pl);
             break;
             case 243:
-            sort243<int>(pl);
+            sort243<type,cast>(pl);
             break;
             case 244:
-            sort244<int>(pl);
+            sort244<type,cast>(pl);
             break;
             case 245:
-            sort245<int>(pl);
+            sort245<type,cast>(pl);
             break;
             case 246:
-            sort246<int>(pl);
+            sort246<type,cast>(pl);
             break;
             case 247:
-            sort247<int>(pl);
+            sort247<type,cast>(pl);
             break;
             case 248:
-            sort248<int>(pl);
+            sort248<type,cast>(pl);
             break;
             case 249:
-            sort249<int>(pl);
+            sort249<type,cast>(pl);
             break;
             case 250:
-            sort250<int>(pl);
+            sort250<type,cast>(pl);
             break;
             case 251:
-            sort251<int>(pl);
+            sort251<type,cast>(pl);
             break;
             case 252:
-            sort252<int>(pl);
+            sort252<type,cast>(pl);
             break;
             case 253:
-            sort253<int>(pl);
+            sort253<type,cast>(pl);
             break;
             case 254:
-            sort254<int>(pl);
+            sort254<type,cast>(pl);
             break;
             case 255:
-            sort255<int>(pl);
+            sort255<type,cast>(pl);
             break;
             case 256:
-            sort256<int>(pl);
+            sort256<type,cast>(pl);
             break;
 */
                 default:
@@ -1614,8 +1614,8 @@ quicksort_ushort(void *start, npy_intp n, void *NPY_UNUSED(varr))
 NPY_NO_EXPORT int
 quicksort_int(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
-    //return quicksort_int((npy_int *)start, n);
-    return quicksort_<npy::int_tag>((npy_int *)start, n);
+    return quicksort_int<npy_int,npy_int>((npy_int *)start, n);
+    //return quicksort_<npy::int_tag>((npy_int *)start, n);
 }
 NPY_NO_EXPORT int
 quicksort_uint(void *start, npy_intp n, void *NPY_UNUSED(varr))
@@ -1650,7 +1650,8 @@ quicksort_half(void *start, npy_intp n, void *NPY_UNUSED(varr))
 NPY_NO_EXPORT int
 quicksort_float(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
-    return quicksort_<npy::float_tag>((npy_float *)start, n);
+    return quicksort_int<npy_float, npy_int>((npy_float *)start, n);
+    //return quicksort_<npy::float_tag>((npy_float *)start, n);
 }
 NPY_NO_EXPORT int
 quicksort_double(void *start, npy_intp n, void *NPY_UNUSED(varr))
