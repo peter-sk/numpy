@@ -1,5 +1,6 @@
     #define SWAP(x,y) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; d[y] ^= dx ^ tmp; }
     #define SWAPN(x,y) { if (y < n) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; d[y] ^= dx ^ tmp; } }
+//    #define SWAPN(x,y) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; d[y] ^= dx ^ tmp; }
 
     template <typename type> void sort2(type *d, int n) {
         if (n <= 1) {

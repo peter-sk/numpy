@@ -59,6 +59,7 @@
 //#include "sn2.h"
 #include "x86-qsort.h"
 #include <cstdlib>
+#include <cstring>
 #include <utility>
 
 #ifndef NPY_DISABLE_OPTIMIZATION
@@ -71,7 +72,7 @@
  * we store two pointers each time
  */
 #define PYA_QS_STACK (NPY_BITSOF_INTP * 2)
-#define SMALL_QUICKSORT 64
+#define SMALL_QUICKSORT 256
 #define SMALL_MERGESORT 20
 #define SMALL_STRING 16
 
@@ -248,6 +249,9 @@ quicksort_(type *start, npy_intp num)
 template <typename type, typename cast> static int
 quicksort_int(type *start, npy_intp num)
 {
+    int max_int = std::numeric_limits<type>::max();
+    type temp[257];
+    int n, i;
     //printf("quicksort_int\n");
     int vp;
     type *pl = start;
@@ -307,7 +311,16 @@ quicksort_int(type *start, npy_intp num)
             }
             *psdepth++ = --cdepth;
         }
-        //sort256(pl,pr-pl+1);
+/*
+        n = pr-pl+1;
+        std::memcpy(temp,pl,n*sizeof(type));
+        for (i = n; i < 256; i++) {
+            temp[i] = max_int;
+        }
+        sort256(temp,n);
+        std::memcpy(pl,temp,n*sizeof(type));
+*/
+        //sort256(pl,pr-pl+1);    
 
         switch (pr-pl+1) {
             case 2:
@@ -499,7 +512,7 @@ quicksort_int(type *start, npy_intp num)
             case 64:
             sort64<type,cast>(pl);
             break;
-/*
+
             case 65:
             sort65<type,cast>(pl);
             break;
@@ -1077,10 +1090,11 @@ quicksort_int(type *start, npy_intp num)
             case 256:
             sort256<type,cast>(pl);
             break;
-*/
+
                 default:
                   break;
         }
+
     stack_pop:
         if (sptr == stack) {
             break;
@@ -1650,8 +1664,8 @@ quicksort_half(void *start, npy_intp n, void *NPY_UNUSED(varr))
 NPY_NO_EXPORT int
 quicksort_float(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
-    return quicksort_int<npy_float, npy_int>((npy_float *)start, n);
-    //return quicksort_<npy::float_tag>((npy_float *)start, n);
+    //return quicksort_int<npy_float, npy_int>((npy_float *)start, n);
+    return quicksort_<npy::float_tag>((npy_float *)start, n);
 }
 NPY_NO_EXPORT int
 quicksort_double(void *start, npy_intp n, void *NPY_UNUSED(varr))
