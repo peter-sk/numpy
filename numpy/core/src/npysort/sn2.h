@@ -1,18 +1,23 @@
-    #define SWAP(x,y) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; d[y] ^= dx ^ tmp; }
-    #define SWAPN(x,y) { if (y < n) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; d[y] ^= dx ^ tmp; } }
-//    #define SWAPN(x,y) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; d[y] ^= dx ^ tmp; }
+#define SWAP(x,y) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; d[y] = (type)(((cast)(d[y])) ^ ((cast)dx) ^ ((cast)tmp)); }
+#if FNS_TYPE == FNS_GUARDED
+#define SWAPN(x,y) { if (y < n) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; d[y] = (type)(((cast)(d[y])) ^ ((cast)dx) ^ ((cast)tmp)); } }
+#else
+#define SWAPN(x,y) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; d[y] = (type)(((cast)(d[y])) ^ ((cast)dx) ^ ((cast)tmp)); }
+#endif
 
-    template <typename type> void sort2(type *d, int n) {
+#if NPY_SORT_BASE > 1
+    template <typename type, typename cast> void sort_2(type *d, int n) {
         if (n <= 1) {
             return;
         }
         SWAP(0, 1);
     }
+#endif
 
-
-    template <typename type> void sort4(type *d, int n) {
+#if NPY_SORT_BASE > 2
+    template <typename type, typename cast> void sort_4(type *d, int n) {
         if (n <= 2) {
-            sort2(d,n);
+            sort_2<type, cast>(d,n);
             return;
         }
         SWAP(0, 2);
@@ -21,10 +26,12 @@
         SWAPN(2, 3);
         SWAP(1, 2);
     }
+#endif
 
-    template <typename type> void sort8(type *d, int n) {
+#if NPY_SORT_BASE > 4
+    template <typename type, typename cast> void sort_8(type *d, int n) {
         if (n <= 4) {
-            sort4(d,n);
+            sort_4<type, cast>(d,n);
             return;
         }
         SWAP(0, 4);
@@ -47,10 +54,12 @@
         SWAP(3, 4);
         SWAPN(5, 6);
     }
+#endif
 
-    template <typename type> void sort16(type *d, int n) {
+#if NPY_SORT_BASE > 8
+    template <typename type, typename cast> void sort_16(type *d, int n) {
         if (n <= 8) {
-            sort8(d,n);
+            sort_8<type, cast>(d,n);
             return;
         }
         SWAP(0, 8);
@@ -117,10 +126,12 @@
         SWAPN(11, 12);
         SWAPN(13, 14);
     }
+#endif
 
-    template <typename type> void sort32(type *d, int n) {
+#if NPY_SORT_BASE > 16
+    template <typename type, typename cast> void sort_32(type *d, int n) {
         if (n <= 16) {
-            sort16(d,n);
+            sort_16<type, cast>(d,n);
             return;
         }
         SWAP(0, 16);
@@ -315,11 +326,12 @@
         SWAPN(27, 28);
         SWAPN(29, 30);
     }
+#endif
 
-
-    template <typename type> void sort64(type *d, int n) {
+#if NPY_SORT_BASE > 32
+    template <typename type, typename cast> void sort_64(type *d, int n) {
         if (n <= 32) {
-            sort32(d,n);
+            sort_32<type, cast>(d,n);
             return;
         }
         SWAP(0, 32);
@@ -866,10 +878,12 @@
         SWAPN(59, 60);
         SWAPN(61, 62);
     }
+#endif
 
-    template <typename type> void sort128(type *d, int n) {
+#if NPY_SORT_BASE > 64
+    template <typename type, typename cast> void sort_128(type *d, int n) {
         if (n <= 64) {
-            sort64(d,n);
+            sort_64<type, cast>(d,n);
             return;
         }
         SWAP(0, 64);
@@ -2344,10 +2358,12 @@
         SWAPN(123, 124);
         SWAPN(125, 126);
     }
+#endif
 
-    template <typename type> void sort256(type *d, int n) {
+#if NPY_SORT_BASE > 128
+    template <typename type, typename cast> void sort_256(type *d, int n) {
         if (n <= 128) {
-            sort128(d,n);
+            sort_128<type, cast>(d,n);
             return;
         }
         SWAP(0, 128);
@@ -6190,3 +6206,4 @@
         SWAPN(251, 252);
         SWAPN(253, 254);
     }
+#endif

@@ -1,0 +1,12 @@
+* replace 16 inputs avx512_bitonic by optimal network
+* re-bench SWAPN via conditional moves
+* pad with MAX_INTs/MIN_INTs/0s/+INF/-INF (use static max-256 array for this)
+* not only powers of 2 - also some additional in betweens
+* block-deactivate comparators
+* do we use reordered batchers in the numpy right now?
+DEBUGGING:
+* check why NPY_SORT_BASE+1 is needed for temp (valgrind?)
+* fix OVERLAP by copying up-front OR avoiding totally
+PROBABLY NOT:
+* replace min max cmpexchange by our exchange?
+* replace bitonic sorting network by our networks?

@@ -1,0 +1,18 @@
+#define NPY_SORT_DISPATCH 0
+#define NPY_SORT_FALLBACK 1
+#define NPY_SORT_FNS 2
+
+#define FNS_ALL 0
+#define FNS_GUARDED 1
+#define FNS_COPY 2
+#define FNS_OVERLAP 3
+
+// CHANGE BELOW
+
+#define NPY_SORT_TYPE NPY_SORT_FNS
+#define FNS_TYPE FNS_OVERLAP
+
+#define NPY_SORT_BASE 64
+#define NPY_SORT_POWER 64
+#define NPY_SORT_FUNC sort_64
+#define NPY_SORT_DEBUG

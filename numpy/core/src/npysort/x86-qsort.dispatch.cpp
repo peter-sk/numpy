@@ -17,6 +17,8 @@
 #include "simd/simd.h"
 #include <immintrin.h>
 
+#include "npysort_config.h"
+
 template <typename Tag, typename type>
 NPY_NO_EXPORT int
 heapsort_(type *start, npy_intp n);
@@ -1024,8 +1026,8 @@ qsort_(type_t *arr, npy_intp left, npy_intp right, npy_int max_iters)
     /*
      * Base case: use bitonic networks to sort arrays <= 128
      */
-    if (right + 1 - left <= 256) {
-        sort_256<vtype>(arr + left, (npy_int)(right + 1 - left));
+    if (right + 1 - left <= NPY_SORT_BASE) {
+        NPY_SORT_FUNC<vtype>(arr + left, (npy_int)(right + 1 - left));
         return;
     }
 
