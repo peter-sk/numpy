@@ -7,12 +7,15 @@
 #define FNS_COPY 2
 #define FNS_OVERLAP 3
 
+#define JOIN_HELPER(X,Y) X ## Y
+#define JOIN(X,Y) JOIN_HELPER(X,Y)
+
 // CHANGE BELOW
 
 #define NPY_SORT_TYPE NPY_SORT_FNS
 #define FNS_TYPE FNS_OVERLAP
 
 #define NPY_SORT_BASE 64
-#define NPY_SORT_POWER 64
-#define NPY_SORT_FUNC sort_64
+#define NPY_SORT_POWER NPY_SORT_BASE
+#define NPY_SORT_FUNC JOIN(sort_,NPY_SORT_POWER)
 #define NPY_SORT_DEBUG
