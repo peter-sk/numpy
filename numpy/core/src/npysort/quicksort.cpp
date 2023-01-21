@@ -2185,7 +2185,7 @@ npy_aquicksort(void *vv, npy_intp *tosort, npy_intp num, void *varr)
 NPY_NO_EXPORT int
 quicksort_bool(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
-#if NPY_SORT_TYPE == NPY_SORT_FNS
+#if false && NPY_SORT_TYPE == NPY_SORT_FNS
     return quicksort_fns<npy_bool,npy_bool>((npy_bool *)start, n);
 #else
     return quicksort_<npy::bool_tag>((npy_bool *)start, n);
@@ -2284,7 +2284,7 @@ quicksort_ulonglong(void *start, npy_intp n, void *NPY_UNUSED(varr))
 NPY_NO_EXPORT int
 quicksort_half(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
-#if NPY_SORT_TYPE == NPY_SORT_FNS
+#if false && NPY_SORT_TYPE == NPY_SORT_FNS
     return quicksort_fns<npy_half,npy_ushort>((npy_half *)start, n);
 #else
     return quicksort_<npy::half_tag>((npy_half *)start, n);
@@ -2293,7 +2293,7 @@ quicksort_half(void *start, npy_intp n, void *NPY_UNUSED(varr))
 NPY_NO_EXPORT int
 quicksort_float(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
-#if NPY_SORT_TYPE == NPY_SORT_FNS
+#if false && NPY_SORT_TYPE == NPY_SORT_FNS
     return quicksort_fns<npy_float,npy_uint>((npy_float *)start, n);
 #else
     return quicksort_<npy::float_tag>((npy_float *)start, n);
@@ -2302,7 +2302,7 @@ quicksort_float(void *start, npy_intp n, void *NPY_UNUSED(varr))
 NPY_NO_EXPORT int
 quicksort_double(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
-#if NPY_SORT_TYPE == NPY_SORT_FNS
+#if false && NPY_SORT_TYPE == NPY_SORT_FNS
     return quicksort_fns<npy_double,npy_ulong>((npy_double *)start, n);
 #else
     return quicksort_<npy::double_tag>((npy_double *)start, n);
@@ -2311,7 +2311,7 @@ quicksort_double(void *start, npy_intp n, void *NPY_UNUSED(varr))
 NPY_NO_EXPORT int
 quicksort_longdouble(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
-#if NPY_SORT_TYPE == NPY_SORT_FNS
+#if false && NPY_SORT_TYPE == NPY_SORT_FNS
     return quicksort_fns<npy_longdouble,npy_ulonglong>((npy_longdouble *)start, n);
 #else
     return quicksort_<npy::longdouble_tag>((npy_longdouble *)start, n);
