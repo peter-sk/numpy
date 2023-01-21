@@ -570,19 +570,19 @@ template <typename vtype, typename type_t>
 static inline void
 sort_8(type_t *arr, npy_int N)
 {
-    sort_16(arr, N);
+    sort_16<vtype,type_t>(arr, N);
 }
 template <typename vtype, typename type_t>
 static inline void
 sort_4(type_t *arr, npy_int N)
 {
-    sort_16(arr, N);
+    sort_16<vtype,type_t>(arr, N);
 }
 template <typename vtype, typename type_t>
 static inline void
 sort_2(type_t *arr, npy_int N)
 {
-    sort_16(arr, N);
+    sort_16<vtype,type_t>(arr, N);
 }
 template <typename vtype, typename type_t>
 static inline void
