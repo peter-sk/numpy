@@ -118,7 +118,7 @@ struct x86_dispatch<npy::int_tag> {
 #ifdef NPY_SORT_DEBUG
             if (npy_sort_debug) {
                 npy_sort_debug = false;
-                printf("%d avx512_bitonic",NPY_SORT_BASE);
+                printf("%d dispatch_avx512",NPY_SORT_BASE);
                 fflush(stdout);
             }
 #endif
@@ -139,7 +139,7 @@ struct x86_dispatch<npy::uint_tag> {
 #ifdef NPY_SORT_DEBUG
             if (npy_sort_debug) {
                 npy_sort_debug = false;
-                printf("%d avx512_bitonic",NPY_SORT_BASE);
+                printf("%d dispatch_avx512",NPY_SORT_BASE);
                 fflush(stdout);
             }
 #endif
@@ -160,7 +160,7 @@ struct x86_dispatch<npy::float_tag> {
 #ifdef NPY_SORT_DEBUG
             if (npy_sort_debug) {
                 npy_sort_debug = false;
-                printf("%d avx512_bitonic",NPY_SORT_BASE);
+                printf("%d dispatch_avx512",NPY_SORT_BASE);
                 fflush(stdout);
             }
 #endif
@@ -184,7 +184,7 @@ quicksort_(type *start, npy_intp num)
 #ifdef NPY_SORT_DEBUG
     if (npy_sort_debug) {
         npy_sort_debug = false;
-        printf("%d fallback ",NPY_SORT_BASE);
+        printf("%d fallback_insertion ",NPY_SORT_BASE);
         fflush(stdout);
     }
 #endif
