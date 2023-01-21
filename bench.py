@@ -18,8 +18,9 @@ def power(n):
     return i
 
 def compile(sorttype,inputs):
-    main, sub = (x.upper() for x in sorttype.split('_'))
+    main, sub = sorttype.split('_')
     print("# compiling %s_%s for %d inputs" % (main, sub, inputs))
+    main, sub = main.upper(), sub.upper()
     npysort = pathlib.Path("numpy") / "core" / "src" / "npysort"
     [p.touch() for p in npysort.glob("*q*.cpp")]
     config = npysort / "npysort_config.h"
