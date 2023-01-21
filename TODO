@@ -5,8 +5,11 @@
 * block-deactivate comparators
 * do we use reordered batchers in the numpy right now?
 DEBUGGING:
+* test sorted for avx512_bitonic
 * check why NPY_SORT_BASE+1 is needed for temp (valgrind?)
-* fix OVERLAP by copying up-front OR avoiding totally
+* fix OVERLAP by copying up-front OR avoiding totally via insertion sort at the end (CURRENTLY DONE!)
+* fix float16 to int16 cast issues when XOR'ing
+* fix all floats (currently not sorting)
 PROBABLY NOT:
 * replace min max cmpexchange by our exchange?
 * replace bitonic sorting network by our networks?

@@ -118,7 +118,8 @@ struct x86_dispatch<npy::int_tag> {
 #ifdef NPY_SORT_DEBUG
             if (npy_sort_debug) {
                 npy_sort_debug = false;
-                printf("x86_quicksort_int(max_inputs = %d, inputs = %ld)\n",NPY_SORT_BASE,num);
+                printf("%d avx512_bitonic",NPY_SORT_BASE);
+                fflush(stdout);
             }
 #endif
             (*dispfunc)(start, num);
@@ -138,7 +139,8 @@ struct x86_dispatch<npy::uint_tag> {
 #ifdef NPY_SORT_DEBUG
             if (npy_sort_debug) {
                 npy_sort_debug = false;
-                printf("x86_quicksort_uint(max_inputs = %d, inputs = %ld)\n",NPY_SORT_BASE,num);
+                printf("%d avx512_bitonic",NPY_SORT_BASE);
+                fflush(stdout);
             }
 #endif
             (*dispfunc)(start, num);
@@ -158,7 +160,8 @@ struct x86_dispatch<npy::float_tag> {
 #ifdef NPY_SORT_DEBUG
             if (npy_sort_debug) {
                 npy_sort_debug = false;
-                printf("x86_quicksort_float(max_inputs = %d, inputs = %ld)\n",NPY_SORT_BASE,num);
+                printf("%d avx512_bitonic",NPY_SORT_BASE);
+                fflush(stdout);
             }
 #endif
             (*dispfunc)(start, num);
@@ -181,7 +184,8 @@ quicksort_(type *start, npy_intp num)
 #ifdef NPY_SORT_DEBUG
     if (npy_sort_debug) {
         npy_sort_debug = false;
-        printf("quicksort_(max_inputs = %d, inputs = %ld)\n",NPY_SORT_BASE,num);
+        printf("%d fallback ",NPY_SORT_BASE);
+        fflush(stdout);
     }
 #endif
     type vp;
@@ -199,7 +203,7 @@ quicksort_(type *start, npy_intp num)
             heapsort_<Tag>(pl, pr - pl + 1);
             goto stack_pop;
         }
-        while ((pr - pl) > SMALL_QUICKSORT) {
+        while ((pr - pl + 1) > SMALL_QUICKSORT) {
             /* quicksort partition */
             pm = pl + ((pr - pl) >> 1);
             if (Tag::less(*pm, *pl)) {
@@ -262,6 +266,13 @@ quicksort_(type *start, npy_intp num)
         cdepth = *(--psdepth);
     }
 
+#ifdef NPY_SORT_CHECK
+    for (int i = 1; i < num; i++) {
+        if (Tag::less(start[i],start[i-1])) {
+            printf("value at %d larger than value at %d\n",i-1,i);
+        }
+    }
+#endif
     return 0;
 }
 
@@ -272,7 +283,18 @@ quicksort_fns(type *start, npy_intp num)
 #ifdef NPY_SORT_DEBUG
     if (npy_sort_debug) {
         npy_sort_debug = false;
-        printf("quicksort_fns(max_inputs = %d, inputs = %ld)\n",NPY_SORT_BASE,num);
+        printf("%d fns_%s ",NPY_SORT_BASE,
+#if FNS_TYPE == FNS_ALL
+        "all"
+#elif FNS_TYPE == FNS_GUARDED
+        "guarded"
+#elif FNS_TYPE == FNS_COPY
+        "copy"
+#elif FNS_TYPE == FNS_OVERLAP
+        "overlap"
+#endif
+        );
+        fflush(stdout);
     }
 #endif
 #if FNS_TYPE == FNS_COPY
@@ -295,7 +317,7 @@ quicksort_fns(type *start, npy_intp num)
             heapsort_<npy::int_tag>(pl, pr - pl + 1);
             goto stack_pop;
         }
-        while ((pr - pl) > SMALL_QUICKSORT) {
+        while ((pr - pl + 1) > SMALL_QUICKSORT) {
             /* quicksort partition */
             pm = pl + ((pr - pl) >> 1);
             if (*pm < *pl) {
@@ -346,10 +368,12 @@ quicksort_fns(type *start, npy_intp num)
         }
         NPY_SORT_FUNC<type, cast>(temp,n);
         std::memcpy(pl,temp,n*sizeof(type));
-#elif FNS_TYPE == FNS_OVERLAP || FNS_TYPE == FNS_GUARDED
+#elif FNS_TYPE == FNS_GUARDED
 #ifdef NPY_SORT_DEBUG
         //printf("sort between %ld and %ld with length %ld and SN of size %d overlapping until %ld\n",pl-start,pr-start,pr-pl+1,NPY_SORT_POWER,pl-start+NPY_SORT_POWER);
 #endif
+        NPY_SORT_FUNC<type, cast>(pl,pr-pl+1);
+#elif FNS_TYPE == FNS_OVERLAP
         if (pl-start+NPY_SORT_POWER < num) {
             NPY_SORT_FUNC<type, cast>(pl,pr-pl+1);
         } else {
@@ -368,1282 +392,1282 @@ quicksort_fns(type *start, npy_intp num)
         switch (pr-pl+1) {
 #if NPY_SORT_BASE > 1
             case 2:
-            sort2<type,cast>(pl);
+            sort_2<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 2
             case 3:
-            sort3<type,cast>(pl);
+            sort_3<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 3
             case 4:
-            sort4<type,cast>(pl);
+            sort_4<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 4
             case 5:
-            sort5<type,cast>(pl);
+            sort_5<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 5
             case 6:
-            sort6<type,cast>(pl);
+            sort_6<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 6
             case 7:
-            sort7<type,cast>(pl);
+            sort_7<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 7
             case 8:
-            sort8<type,cast>(pl);
+            sort_8<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 8
             case 9:
-            sort9<type,cast>(pl);
+            sort_9<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 9
             case 10:
-            sort10<type,cast>(pl);
+            sort_10<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 10
             case 11:
-            sort11<type,cast>(pl);
+            sort_11<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 11
             case 12:
-            sort12<type,cast>(pl);
+            sort_12<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 12
             case 13:
-            sort13<type,cast>(pl);
+            sort_13<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 13
             case 14:
-            sort14<type,cast>(pl);
+            sort_14<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 14
             case 15:
-            sort15<type,cast>(pl);
+            sort_15<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 15
             case 16:
-            sort16<type,cast>(pl);
+            sort_16<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 16
             case 17:
-            sort17<type,cast>(pl);
+            sort_17<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 17
             case 18:
-            sort18<type,cast>(pl);
+            sort_18<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 18
             case 19:
-            sort19<type,cast>(pl);
+            sort_19<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 19
             case 20:
-            sort20<type,cast>(pl);
+            sort_20<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 20
             case 21:
-            sort21<type,cast>(pl);
+            sort_21<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 21
             case 22:
-            sort22<type,cast>(pl);
+            sort_22<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 22
             case 23:
-            sort23<type,cast>(pl);
+            sort_23<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 23
             case 24:
-            sort24<type,cast>(pl);
+            sort_24<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 24
             case 25:
-            sort25<type,cast>(pl);
+            sort_25<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 25
             case 26:
-            sort26<type,cast>(pl);
+            sort_26<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 26
             case 27:
-            sort27<type,cast>(pl);
+            sort_27<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 27
             case 28:
-            sort28<type,cast>(pl);
+            sort_28<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 28
             case 29:
-            sort29<type,cast>(pl);
+            sort_29<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 29
             case 30:
-            sort30<type,cast>(pl);
+            sort_30<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 30
             case 31:
-            sort31<type,cast>(pl);
+            sort_31<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 31
             case 32:
-            sort32<type,cast>(pl);
+            sort_32<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 32
             case 33:
-            sort33<type,cast>(pl);
+            sort_33<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 33
             case 34:
-            sort34<type,cast>(pl);
+            sort_34<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 34
             case 35:
-            sort35<type,cast>(pl);
+            sort_35<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 35
             case 36:
-            sort36<type,cast>(pl);
+            sort_36<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 36
             case 37:
-            sort37<type,cast>(pl);
+            sort_37<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 37
             case 38:
-            sort38<type,cast>(pl);
+            sort_38<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 38
             case 39:
-            sort39<type,cast>(pl);
+            sort_39<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 39
             case 40:
-            sort40<type,cast>(pl);
+            sort_40<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 40
             case 41:
-            sort41<type,cast>(pl);
+            sort_41<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 41
             case 42:
-            sort42<type,cast>(pl);
+            sort_42<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 42
             case 43:
-            sort43<type,cast>(pl);
+            sort_43<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 43
             case 44:
-            sort44<type,cast>(pl);
+            sort_44<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 44
             case 45:
-            sort45<type,cast>(pl);
+            sort_45<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 45
             case 46:
-            sort46<type,cast>(pl);
+            sort_46<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 46
             case 47:
-            sort47<type,cast>(pl);
+            sort_47<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 47
             case 48:
-            sort48<type,cast>(pl);
+            sort_48<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 48
             case 49:
-            sort49<type,cast>(pl);
+            sort_49<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 49
             case 50:
-            sort50<type,cast>(pl);
+            sort_50<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 50
             case 51:
-            sort51<type,cast>(pl);
+            sort_51<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 51
             case 52:
-            sort52<type,cast>(pl);
+            sort_52<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 52
             case 53:
-            sort53<type,cast>(pl);
+            sort_53<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 53
             case 54:
-            sort54<type,cast>(pl);
+            sort_54<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 54
             case 55:
-            sort55<type,cast>(pl);
+            sort_55<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 55
             case 56:
-            sort56<type,cast>(pl);
+            sort_56<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 56
             case 57:
-            sort57<type,cast>(pl);
+            sort_57<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 57
             case 58:
-            sort58<type,cast>(pl);
+            sort_58<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 58
             case 59:
-            sort59<type,cast>(pl);
+            sort_59<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 59
             case 60:
-            sort60<type,cast>(pl);
+            sort_60<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 60
             case 61:
-            sort61<type,cast>(pl);
+            sort_61<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 61
             case 62:
-            sort62<type,cast>(pl);
+            sort_62<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 62
             case 63:
-            sort63<type,cast>(pl);
+            sort_63<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 63
             case 64:
-            sort64<type,cast>(pl);
+            sort_64<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 64
             case 65:
-            sort65<type,cast>(pl);
+            sort_65<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 65
             case 66:
-            sort66<type,cast>(pl);
+            sort_66<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 66
             case 67:
-            sort67<type,cast>(pl);
+            sort_67<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 67
             case 68:
-            sort68<type,cast>(pl);
+            sort_68<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 68
             case 69:
-            sort69<type,cast>(pl);
+            sort_69<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 69
             case 70:
-            sort70<type,cast>(pl);
+            sort_70<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 70
             case 71:
-            sort71<type,cast>(pl);
+            sort_71<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 71
             case 72:
-            sort72<type,cast>(pl);
+            sort_72<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 72
             case 73:
-            sort73<type,cast>(pl);
+            sort_73<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 73
             case 74:
-            sort74<type,cast>(pl);
+            sort_74<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 74
             case 75:
-            sort75<type,cast>(pl);
+            sort_75<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 75
             case 76:
-            sort76<type,cast>(pl);
+            sort_76<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 76
             case 77:
-            sort77<type,cast>(pl);
+            sort_77<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 77
             case 78:
-            sort78<type,cast>(pl);
+            sort_78<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 78
             case 79:
-            sort79<type,cast>(pl);
+            sort_79<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 79
             case 80:
-            sort80<type,cast>(pl);
+            sort_80<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 80
             case 81:
-            sort81<type,cast>(pl);
+            sort_81<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 81
             case 82:
-            sort82<type,cast>(pl);
+            sort_82<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 82
             case 83:
-            sort83<type,cast>(pl);
+            sort_83<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 83
             case 84:
-            sort84<type,cast>(pl);
+            sort_84<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 84
             case 85:
-            sort85<type,cast>(pl);
+            sort_85<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 85
             case 86:
-            sort86<type,cast>(pl);
+            sort_86<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 86
             case 87:
-            sort87<type,cast>(pl);
+            sort_87<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 87
             case 88:
-            sort88<type,cast>(pl);
+            sort_88<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 88
             case 89:
-            sort89<type,cast>(pl);
+            sort_89<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 89
             case 90:
-            sort90<type,cast>(pl);
+            sort_90<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 90
             case 91:
-            sort91<type,cast>(pl);
+            sort_91<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 91
             case 92:
-            sort92<type,cast>(pl);
+            sort_92<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 92
             case 93:
-            sort93<type,cast>(pl);
+            sort_93<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 93
             case 94:
-            sort94<type,cast>(pl);
+            sort_94<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 94
             case 95:
-            sort95<type,cast>(pl);
+            sort_95<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 95
             case 96:
-            sort96<type,cast>(pl);
+            sort_96<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 96
             case 97:
-            sort97<type,cast>(pl);
+            sort_97<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 97
             case 98:
-            sort98<type,cast>(pl);
+            sort_98<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 98
             case 99:
-            sort99<type,cast>(pl);
+            sort_99<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 99
             case 100:
-            sort100<type,cast>(pl);
+            sort_100<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 100
             case 101:
-            sort101<type,cast>(pl);
+            sort_101<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 101
             case 102:
-            sort102<type,cast>(pl);
+            sort_102<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 102
             case 103:
-            sort103<type,cast>(pl);
+            sort_103<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 103
             case 104:
-            sort104<type,cast>(pl);
+            sort_104<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 104
             case 105:
-            sort105<type,cast>(pl);
+            sort_105<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 105
             case 106:
-            sort106<type,cast>(pl);
+            sort_106<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 106
             case 107:
-            sort107<type,cast>(pl);
+            sort_107<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 107
             case 108:
-            sort108<type,cast>(pl);
+            sort_108<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 108
             case 109:
-            sort109<type,cast>(pl);
+            sort_109<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 109
             case 110:
-            sort110<type,cast>(pl);
+            sort_110<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 110
             case 111:
-            sort111<type,cast>(pl);
+            sort_111<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 111
             case 112:
-            sort112<type,cast>(pl);
+            sort_112<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 112
             case 113:
-            sort113<type,cast>(pl);
+            sort_113<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 113
             case 114:
-            sort114<type,cast>(pl);
+            sort_114<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 114
             case 115:
-            sort115<type,cast>(pl);
+            sort_115<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 115
             case 116:
-            sort116<type,cast>(pl);
+            sort_116<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 116
             case 117:
-            sort117<type,cast>(pl);
+            sort_117<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 117
             case 118:
-            sort118<type,cast>(pl);
+            sort_118<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 118
             case 119:
-            sort119<type,cast>(pl);
+            sort_119<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 119
             case 120:
-            sort120<type,cast>(pl);
+            sort_120<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 120
             case 121:
-            sort121<type,cast>(pl);
+            sort_121<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 121
             case 122:
-            sort122<type,cast>(pl);
+            sort_122<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 122
             case 123:
-            sort123<type,cast>(pl);
+            sort_123<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 123
             case 124:
-            sort124<type,cast>(pl);
+            sort_124<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 124
             case 125:
-            sort125<type,cast>(pl);
+            sort_125<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 125
             case 126:
-            sort126<type,cast>(pl);
+            sort_126<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 126
             case 127:
-            sort127<type,cast>(pl);
+            sort_127<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 127
             case 128:
-            sort128<type,cast>(pl);
+            sort_128<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 128
             case 129:
-            sort129<type,cast>(pl);
+            sort_129<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 129
             case 130:
-            sort130<type,cast>(pl);
+            sort_130<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 130
             case 131:
-            sort131<type,cast>(pl);
+            sort_131<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 131
             case 132:
-            sort132<type,cast>(pl);
+            sort_132<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 132
             case 133:
-            sort133<type,cast>(pl);
+            sort_133<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 133
             case 134:
-            sort134<type,cast>(pl);
+            sort_134<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 134
             case 135:
-            sort135<type,cast>(pl);
+            sort_135<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 135
             case 136:
-            sort136<type,cast>(pl);
+            sort_136<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 136
             case 137:
-            sort137<type,cast>(pl);
+            sort_137<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 137
             case 138:
-            sort138<type,cast>(pl);
+            sort_138<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 138
             case 139:
-            sort139<type,cast>(pl);
+            sort_139<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 139
             case 140:
-            sort140<type,cast>(pl);
+            sort_140<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 140
             case 141:
-            sort141<type,cast>(pl);
+            sort_141<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 141
             case 142:
-            sort142<type,cast>(pl);
+            sort_142<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 142
             case 143:
-            sort143<type,cast>(pl);
+            sort_143<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 143
             case 144:
-            sort144<type,cast>(pl);
+            sort_144<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 144
             case 145:
-            sort145<type,cast>(pl);
+            sort_145<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 145
             case 146:
-            sort146<type,cast>(pl);
+            sort_146<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 146
             case 147:
-            sort147<type,cast>(pl);
+            sort_147<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 147
             case 148:
-            sort148<type,cast>(pl);
+            sort_148<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 148
             case 149:
-            sort149<type,cast>(pl);
+            sort_149<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 149
             case 150:
-            sort150<type,cast>(pl);
+            sort_150<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 150
             case 151:
-            sort151<type,cast>(pl);
+            sort_151<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 151
             case 152:
-            sort152<type,cast>(pl);
+            sort_152<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 152
             case 153:
-            sort153<type,cast>(pl);
+            sort_153<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 153
             case 154:
-            sort154<type,cast>(pl);
+            sort_154<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 154
             case 155:
-            sort155<type,cast>(pl);
+            sort_155<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 155
             case 156:
-            sort156<type,cast>(pl);
+            sort_156<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 156
             case 157:
-            sort157<type,cast>(pl);
+            sort_157<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 157
             case 158:
-            sort158<type,cast>(pl);
+            sort_158<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 158
             case 159:
-            sort159<type,cast>(pl);
+            sort_159<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 159
             case 160:
-            sort160<type,cast>(pl);
+            sort_160<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 160
             case 161:
-            sort161<type,cast>(pl);
+            sort_161<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 161
             case 162:
-            sort162<type,cast>(pl);
+            sort_162<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 162
             case 163:
-            sort163<type,cast>(pl);
+            sort_163<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 163
             case 164:
-            sort164<type,cast>(pl);
+            sort_164<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 164
             case 165:
-            sort165<type,cast>(pl);
+            sort_165<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 165
             case 166:
-            sort166<type,cast>(pl);
+            sort_166<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 166
             case 167:
-            sort167<type,cast>(pl);
+            sort_167<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 167
             case 168:
-            sort168<type,cast>(pl);
+            sort_168<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 168
             case 169:
-            sort169<type,cast>(pl);
+            sort_169<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 169
             case 170:
-            sort170<type,cast>(pl);
+            sort_170<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 170
             case 171:
-            sort171<type,cast>(pl);
+            sort_171<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 171
             case 172:
-            sort172<type,cast>(pl);
+            sort_172<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 172
             case 173:
-            sort173<type,cast>(pl);
+            sort_173<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 173
             case 174:
-            sort174<type,cast>(pl);
+            sort_174<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 174
             case 175:
-            sort175<type,cast>(pl);
+            sort_175<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 175
             case 176:
-            sort176<type,cast>(pl);
+            sort_176<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 176
             case 177:
-            sort177<type,cast>(pl);
+            sort_177<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 177
             case 178:
-            sort178<type,cast>(pl);
+            sort_178<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 178
             case 179:
-            sort179<type,cast>(pl);
+            sort_179<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 179
             case 180:
-            sort180<type,cast>(pl);
+            sort_180<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 180
             case 181:
-            sort181<type,cast>(pl);
+            sort_181<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 181
             case 182:
-            sort182<type,cast>(pl);
+            sort_182<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 182
             case 183:
-            sort183<type,cast>(pl);
+            sort_183<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 183
             case 184:
-            sort184<type,cast>(pl);
+            sort_184<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 184
             case 185:
-            sort185<type,cast>(pl);
+            sort_185<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 185
             case 186:
-            sort186<type,cast>(pl);
+            sort_186<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 186
             case 187:
-            sort187<type,cast>(pl);
+            sort_187<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 187
             case 188:
-            sort188<type,cast>(pl);
+            sort_188<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 188
             case 189:
-            sort189<type,cast>(pl);
+            sort_189<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 189
             case 190:
-            sort190<type,cast>(pl);
+            sort_190<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 190
             case 191:
-            sort191<type,cast>(pl);
+            sort_191<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 191
             case 192:
-            sort192<type,cast>(pl);
+            sort_192<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 192
             case 193:
-            sort193<type,cast>(pl);
+            sort_193<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 193
             case 194:
-            sort194<type,cast>(pl);
+            sort_194<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 194
             case 195:
-            sort195<type,cast>(pl);
+            sort_195<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 195
             case 196:
-            sort196<type,cast>(pl);
+            sort_196<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 196
             case 197:
-            sort197<type,cast>(pl);
+            sort_197<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 197
             case 198:
-            sort198<type,cast>(pl);
+            sort_198<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 198
             case 199:
-            sort199<type,cast>(pl);
+            sort_199<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 199
             case 200:
-            sort200<type,cast>(pl);
+            sort_200<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 200
             case 201:
-            sort201<type,cast>(pl);
+            sort_201<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 201
             case 202:
-            sort202<type,cast>(pl);
+            sort_202<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 202
             case 203:
-            sort203<type,cast>(pl);
+            sort_203<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 203
             case 204:
-            sort204<type,cast>(pl);
+            sort_204<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 204
             case 205:
-            sort205<type,cast>(pl);
+            sort_205<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 205
             case 206:
-            sort206<type,cast>(pl);
+            sort_206<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 206
             case 207:
-            sort207<type,cast>(pl);
+            sort_207<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 207
             case 208:
-            sort208<type,cast>(pl);
+            sort_208<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 208
             case 209:
-            sort209<type,cast>(pl);
+            sort_209<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 209
             case 210:
-            sort210<type,cast>(pl);
+            sort_210<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 210
             case 211:
-            sort211<type,cast>(pl);
+            sort_211<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 211
             case 212:
-            sort212<type,cast>(pl);
+            sort_212<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 212
             case 213:
-            sort213<type,cast>(pl);
+            sort_213<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 213
             case 214:
-            sort214<type,cast>(pl);
+            sort_214<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 214
             case 215:
-            sort215<type,cast>(pl);
+            sort_215<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 215
             case 216:
-            sort216<type,cast>(pl);
+            sort_216<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 216
             case 217:
-            sort217<type,cast>(pl);
+            sort_217<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 217
             case 218:
-            sort218<type,cast>(pl);
+            sort_218<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 218
             case 219:
-            sort219<type,cast>(pl);
+            sort_219<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 219
             case 220:
-            sort220<type,cast>(pl);
+            sort_220<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 220
             case 221:
-            sort221<type,cast>(pl);
+            sort_221<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 221
             case 222:
-            sort222<type,cast>(pl);
+            sort_222<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 222
             case 223:
-            sort223<type,cast>(pl);
+            sort_223<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 223
             case 224:
-            sort224<type,cast>(pl);
+            sort_224<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 224
             case 225:
-            sort225<type,cast>(pl);
+            sort_225<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 225
             case 226:
-            sort226<type,cast>(pl);
+            sort_226<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 226
             case 227:
-            sort227<type,cast>(pl);
+            sort_227<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 227
             case 228:
-            sort228<type,cast>(pl);
+            sort_228<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 228
             case 229:
-            sort229<type,cast>(pl);
+            sort_229<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 229
             case 230:
-            sort230<type,cast>(pl);
+            sort_230<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 230
             case 231:
-            sort231<type,cast>(pl);
+            sort_231<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 231
             case 232:
-            sort232<type,cast>(pl);
+            sort_232<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 232
             case 233:
-            sort233<type,cast>(pl);
+            sort_233<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 233
             case 234:
-            sort234<type,cast>(pl);
+            sort_234<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 234
             case 235:
-            sort235<type,cast>(pl);
+            sort_235<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 235
             case 236:
-            sort236<type,cast>(pl);
+            sort_236<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 236
             case 237:
-            sort237<type,cast>(pl);
+            sort_237<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 237
             case 238:
-            sort238<type,cast>(pl);
+            sort_238<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 238
             case 239:
-            sort239<type,cast>(pl);
+            sort_239<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 239
             case 240:
-            sort240<type,cast>(pl);
+            sort_240<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 240
             case 241:
-            sort241<type,cast>(pl);
+            sort_241<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 241
             case 242:
-            sort242<type,cast>(pl);
+            sort_242<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 242
             case 243:
-            sort243<type,cast>(pl);
+            sort_243<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 243
             case 244:
-            sort244<type,cast>(pl);
+            sort_244<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 244
             case 245:
-            sort245<type,cast>(pl);
+            sort_245<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 245
             case 246:
-            sort246<type,cast>(pl);
+            sort_246<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 246
             case 247:
-            sort247<type,cast>(pl);
+            sort_247<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 247
             case 248:
-            sort248<type,cast>(pl);
+            sort_248<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 248
             case 249:
-            sort249<type,cast>(pl);
+            sort_249<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 249
             case 250:
-            sort250<type,cast>(pl);
+            sort_250<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 250
             case 251:
-            sort251<type,cast>(pl);
+            sort_251<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 251
             case 252:
-            sort252<type,cast>(pl);
+            sort_252<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 252
             case 253:
-            sort253<type,cast>(pl);
+            sort_253<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 253
             case 254:
-            sort254<type,cast>(pl);
+            sort_254<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 254
             case 255:
-            sort255<type,cast>(pl);
+            sort_255<type,cast>(pl);
             break;
 #endif
 #if NPY_SORT_BASE > 255
             case 256:
-            sort256<type,cast>(pl);
+            sort_256<type,cast>(pl);
             break;
                 default:
                   break;
-        }
 #endif
+        }
 #endif
     stack_pop:
         if (sptr == stack) {
@@ -1654,6 +1678,13 @@ quicksort_fns(type *start, npy_intp num)
         cdepth = *(--psdepth);
     }
 
+#ifdef NPY_SORT_CHECK
+    for (int i = 1; i < num; i++) {
+        if (start[i] < start[i-1]) {
+            printf("value at %d larger than value at %d\n",i-1,i);
+        }
+    }
+#endif
     return 0;
 }
 #endif
@@ -2163,22 +2194,38 @@ quicksort_bool(void *start, npy_intp n, void *NPY_UNUSED(varr))
 NPY_NO_EXPORT int
 quicksort_byte(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
+#if NPY_SORT_TYPE == NPY_SORT_FNS
+    return quicksort_fns<npy_byte,npy_byte>((npy_byte *)start, n);
+#else
     return quicksort_<npy::byte_tag>((npy_byte *)start, n);
+#endif
 }
 NPY_NO_EXPORT int
 quicksort_ubyte(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
+#if NPY_SORT_TYPE == NPY_SORT_FNS
+    return quicksort_fns<npy_ubyte,npy_ubyte>((npy_ubyte *)start, n);
+#else
     return quicksort_<npy::ubyte_tag>((npy_ubyte *)start, n);
+#endif
 }
 NPY_NO_EXPORT int
 quicksort_short(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
+#if NPY_SORT_TYPE == NPY_SORT_FNS
+    return quicksort_fns<npy_short,npy_short>((npy_short *)start, n);
+#else
     return quicksort_<npy::short_tag>((npy_short *)start, n);
+#endif
 }
 NPY_NO_EXPORT int
 quicksort_ushort(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
+#if NPY_SORT_TYPE == NPY_SORT_FNS
+    return quicksort_fns<npy_ushort,npy_ushort>((npy_ushort *)start, n);
+#else
     return quicksort_<npy::ushort_tag>((npy_ushort *)start, n);
+#endif
 }
 NPY_NO_EXPORT int
 quicksort_int(void *start, npy_intp n, void *NPY_UNUSED(varr))
@@ -2210,22 +2257,38 @@ quicksort_long(void *start, npy_intp n, void *NPY_UNUSED(varr))
 NPY_NO_EXPORT int
 quicksort_ulong(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
+#if NPY_SORT_TYPE == NPY_SORT_FNS
+    return quicksort_fns<npy_ulong,npy_ulong>((npy_ulong *)start, n);
+#else
     return quicksort_<npy::ulong_tag>((npy_ulong *)start, n);
+#endif
 }
 NPY_NO_EXPORT int
 quicksort_longlong(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
+#if NPY_SORT_TYPE == NPY_SORT_FNS
+    return quicksort_fns<npy_longlong,npy_longlong>((npy_longlong *)start, n);
+#else
     return quicksort_<npy::longlong_tag>((npy_longlong *)start, n);
+#endif
 }
 NPY_NO_EXPORT int
 quicksort_ulonglong(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
+#if NPY_SORT_TYPE == NPY_SORT_FNS
+    return quicksort_fns<npy_ulonglong,npy_ulonglong>((npy_ulonglong *)start, n);
+#else
     return quicksort_<npy::ulonglong_tag>((npy_ulonglong *)start, n);
+#endif
 }
 NPY_NO_EXPORT int
 quicksort_half(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
+#if NPY_SORT_TYPE == NPY_SORT_FNS
+    return quicksort_fns<npy_half,npy_ushort>((npy_half *)start, n);
+#else
     return quicksort_<npy::half_tag>((npy_half *)start, n);
+#endif
 }
 NPY_NO_EXPORT int
 quicksort_float(void *start, npy_intp n, void *NPY_UNUSED(varr))
@@ -2239,12 +2302,20 @@ quicksort_float(void *start, npy_intp n, void *NPY_UNUSED(varr))
 NPY_NO_EXPORT int
 quicksort_double(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
+#if NPY_SORT_TYPE == NPY_SORT_FNS
+    return quicksort_fns<npy_double,npy_ulong>((npy_double *)start, n);
+#else
     return quicksort_<npy::double_tag>((npy_double *)start, n);
+#endif
 }
 NPY_NO_EXPORT int
 quicksort_longdouble(void *start, npy_intp n, void *NPY_UNUSED(varr))
 {
+#if NPY_SORT_TYPE == NPY_SORT_FNS
+    return quicksort_fns<npy_longdouble,npy_ulonglong>((npy_longdouble *)start, n);
+#else
     return quicksort_<npy::longdouble_tag>((npy_longdouble *)start, n);
+#endif
 }
 NPY_NO_EXPORT int
 quicksort_cfloat(void *start, npy_intp n, void *NPY_UNUSED(varr))

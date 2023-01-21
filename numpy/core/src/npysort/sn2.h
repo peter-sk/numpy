@@ -1,4 +1,4 @@
-#define SWAP(x,y) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; d[y] = (type)(((cast)(d[y])) ^ ((cast)dx) ^ ((cast)tmp)); }
+#define SWAP(x,y) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; d[y] = (type)((cast)(((cast)(d[y])) ^ ((cast)dx) ^ ((cast)tmp))); }
 #if FNS_TYPE == FNS_GUARDED
 #define SWAPN(x,y) { if (y < n) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; d[y] = (type)(((cast)(d[y])) ^ ((cast)dx) ^ ((cast)tmp)); } }
 #else
