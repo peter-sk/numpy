@@ -1091,6 +1091,14 @@ NPY_CPU_DISPATCH_CURFX(x86_quicksort_int)(void *arr, npy_intp arrsize)
         qsort_<vector<npy_int>, npy_int>((npy_int *)arr, 0, arrsize - 1,
                                          2 * (npy_int)log2(arrsize));
     }
+#ifdef NPY_SORT_CHECK
+    npy_int *start = (npy_int *)arr;
+    for (int i = 1; i < arrsize; i++) {
+        if (start[i] < start[i-1]) {
+            printf("value at %d larger than value at %d\n",i-1,i);
+        }
+    }
+#endif
 }
 
 NPY_NO_EXPORT void
@@ -1100,6 +1108,14 @@ NPY_CPU_DISPATCH_CURFX(x86_quicksort_uint)(void *arr, npy_intp arrsize)
         qsort_<vector<npy_uint>, npy_uint>((npy_uint *)arr, 0, arrsize - 1,
                                            2 * (npy_int)log2(arrsize));
     }
+#ifdef NPY_SORT_CHECK
+    npy_uint *start = (npy_uint *)arr;
+    for (int i = 1; i < arrsize; i++) {
+        if (start[i] < start[i-1]) {
+            printf("value at %d larger than value at %d\n",i-1,i);
+        }
+    }
+#endif
 }
 
 NPY_NO_EXPORT void
@@ -1111,6 +1127,14 @@ NPY_CPU_DISPATCH_CURFX(x86_quicksort_float)(void *arr, npy_intp arrsize)
                                              2 * (npy_int)log2(arrsize));
         replace_inf_with_nan((npy_float *)arr, arrsize, nan_count);
     }
+#ifdef NPY_SORT_CHECK
+    npy_float *start = (npy_float *)arr;
+    for (int i = 1; i < arrsize; i++) {
+        if (start[i] < start[i-1]) {
+            printf("value at %d larger than value at %d\n",i-1,i);
+        }
+    }
+#endif
 }
 
 #endif  // NPY_HAVE_AVX512_SKX
