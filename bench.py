@@ -1,4 +1,5 @@
 #!/usr/bin/env python3.9
+import datetime
 import multiprocessing
 import pathlib
 import subprocess
@@ -19,7 +20,7 @@ def power(n):
 
 def compile(sorttype,inputs):
     main, sub = sorttype.split('_')
-    print("# compiling %s_%s for %d inputs" % (main, sub, inputs))
+    print("# compiling %s_%s for %d inputs at %s" % (main, sub, inputs, str(datetime.datetime.now())))
     main, sub = main.upper(), sub.upper()
     npysort = pathlib.Path("numpy") / "core" / "src" / "npysort"
     [p.touch() for p in npysort.glob("*q*.cpp")]
