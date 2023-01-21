@@ -566,6 +566,29 @@ sort_16(type_t *arr, npy_int N)
             vtype::mask_loadu(vtype::zmm_max(), load_mask, arr);
     vtype::mask_storeu(arr, load_mask, sort_zmm<vtype>(zmm));
 }
+template <typename vtype, typename type_t>
+static inline void
+sort_8(type_t *arr, npy_int N)
+{
+    sort_16(arr, N);
+}
+template <typename vtype, typename type_t>
+static inline void
+sort_4(type_t *arr, npy_int N)
+{
+    sort_16(arr, N);
+}
+template <typename vtype, typename type_t>
+static inline void
+sort_2(type_t *arr, npy_int N)
+{
+    sort_16(arr, N);
+}
+template <typename vtype, typename type_t>
+static inline void
+sort_1(type_t *arr, npy_int N)
+{
+}
 
 template <typename vtype, typename type_t>
 static inline void
