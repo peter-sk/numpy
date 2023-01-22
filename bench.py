@@ -32,7 +32,11 @@ def compile(sorttype,inputs):
 #define NPY_SORT_POWER %d
 """ % (main,main,main,sub,inputs,power(inputs))
     config.write_text(text)
-    subprocess.run([sys.executable,'setup.py','build','-j','8'],check=True,capture_output=True)
+    try:
+        subprocess.run([sys.executable,'setup.py','build','-j','8'],check=True,capture_output=True)
+    except subprocess.CalledProcessError as e:
+        print("STDOUT:\n%s\nSTDERR:\n%s" % (e.stdout,e.stderr))
+        raise e
 
 if __name__ == "__main__":
     args = sys.argv[1:]
