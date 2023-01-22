@@ -33,7 +33,7 @@ def compile(sorttype,inputs):
 """ % (main,main,main,sub,inputs,power(inputs))
     config.write_text(text)
     try:
-        subprocess.run([sys.executable,'setup.py','build','-j','8'],check=True,capture_output=True)
+        subprocess.run([sys.executable,'setup.py','build','-j','8'],check=True,capture_output=True,encoding='latin1')
     except subprocess.CalledProcessError as e:
         print("STDOUT:\n%s\nSTDERR:\n%s" % (e.stdout,e.stderr))
         raise e
