@@ -71,6 +71,9 @@
 #else
 #include "sn2.h"
 #endif
+#if FNS_TYPE == FNS_COPY
+#include <limits>
+#endif
 #endif
 #ifdef NPY_SORT_DEBUG
 static bool npy_sort_debug = true;
