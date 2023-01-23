@@ -1,14 +1,14 @@
-* replace 16 inputs avx512_bitonic by optimal network
-* re-bench SWAPN via conditional moves
-* pad with MAX_INTs/MIN_INTs/0s/+INF/-INF (use static max-256 array for this)
-* not only powers of 2 - also some additional in betweens
-* block-deactivate comparators
-* do we use reordered batchers in the numpy right now?
 DEBUGGING:
 * check why NPY_SORT_BASE+1 is needed for temp (valgrind?)
-* fix OVERLAP by copying up-front OR avoiding totally via insertion sort at the end (CURRENTLY DONE!)
 * fix float16 to int16 cast issues when XOR'ing
 * fix all floats (currently not sorting)
+IDEAS:
+* re-bench SWAPN via conditional moves
+* not only powers of 2 - also some additional in betweens
+* block-deactivate comparators (reordering should help)
+* do we use reordered batchers in the numpy right now?
+* fix OVERLAP by copying up-front instead of falling back to insertion sort
 PROBABLY NOT:
-* replace min max cmpexchange by our exchange?
-* replace bitonic sorting network by our networks?
+* replace min max cmpexchange for avx512_bitonic by our exchange?
+* replace bitonic sorting network by optimal 16 inputs?
+* take all optimal until 16 or so - lots of the speedup for little code size
