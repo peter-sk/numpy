@@ -6,6 +6,7 @@
 #define FNS_GUARDED 1
 #define FNS_COPY 2
 #define FNS_OVERLAP 3
+#define FNS_PADDED 4
 
 #define JOIN_HELPER(X,Y) X ## Y
 #define JOIN(X,Y) JOIN_HELPER(X,Y)
@@ -16,6 +17,6 @@
 
 //
 #define NPY_SORT_TYPE NPY_SORT_FNS
-#define FNS_TYPE FNS_OVERLAP
+#define FNS_TYPE FNS_PADDED
 #define NPY_SORT_BASE 32
 #define NPY_SORT_POWER 32

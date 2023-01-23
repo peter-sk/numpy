@@ -295,15 +295,27 @@ quicksort_fns(type *start, npy_intp num)
         "copy"
 #elif FNS_TYPE == FNS_OVERLAP
         "overlap"
+#elif FNS_TYPE == FNS_PADDED
+        "padded"
 #endif
         );
         fflush(stdout);
     }
 #endif
-#if FNS_TYPE == FNS_COPY
+#if FNS_TYPE == FNS_COPY || FNS_TYPE == FNS_PADDED
     type max_int = std::numeric_limits<type>::max();
+    int i;
+#if FNS_TYPE == FNS_COPY
     type temp[NPY_SORT_POWER+1];
-    int n, i;
+    int n;
+#elif FNS_TYPE == FNS_PADDED
+    type *original_start = start;
+    start = new type[num+NPY_SORT_POWER];
+    std::memcpy(start,original_start,num*sizeof(type));
+    for (i = num; i < num+NPY_SORT_POWER; i++) {
+        start[i] = max_int;
+    }
+#endif
 #endif
     type vp;
     type *pl = start;
@@ -391,6 +403,8 @@ quicksort_fns(type *start, npy_intp num)
                 *pj = vp;
             }
         }
+#elif FNS_TYPE == FNS_PADDED
+        NPY_SORT_FUNC<type, cast>(pl,pr-pl+1);
 #elif FNS_TYPE == FNS_ALL
         switch (pr-pl+1) {
 #if NPY_SORT_BASE > 1
@@ -1681,6 +1695,11 @@ quicksort_fns(type *start, npy_intp num)
         cdepth = *(--psdepth);
     }
 
+#if FNS_TYPE == FNS_PADDED
+    std::memcpy(original_start,start,num*sizeof(type));
+    delete[] start;
+    start = original_start;
+#endif
 #ifdef NPY_SORT_CHECK
     for (int i = 1; i < num; i++) {
         if (start[i] < start[i-1]) {
