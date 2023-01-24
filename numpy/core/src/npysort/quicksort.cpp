@@ -71,7 +71,7 @@
 #else
 #include "sn2.h"
 #endif
-#if FNS_TYPE == FNS_COPY
+#if FNS_TYPE == FNS_COPY || FNS_TYPE == FNS_PADDED
 #include <limits>
 #endif
 #endif
