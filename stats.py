@@ -1,20 +1,27 @@
-#!/usr/bin/env python3
-from sys import stdin, argv
+#!/usr/bin/env python3.9
+from sys import stdin, argv, path
+del path[0]
 from collections import defaultdict
 from matplotlib import pyplot as plt
 l2a2id = defaultdict(lambda: defaultdict(lambda: []))
 for line in stdin:
     line = line.strip()
-    if line:
-        length, _, _, inputs, algorithm, duration = line.split()
-        length, inputs, duration = int(length), int(inputs), float(duration)
-        if not inputs & inputs-1:
-            l2a2id[length][algorithm].append((inputs,duration))
+    if line and line[0] != '#':
+        try:
+            length, dtype, _, _, ialgorithm, iinputs, einputs, ealgorithm, duration = line.split()
+        except ValueError as e:
+            print(line)
+            raise e
+        length, iinputs, einputs, duration = int(length), int(iinputs), int(einputs), float(duration)
+#        if not inputs & inputs-1:
+#        if ialgorithm == ealgorithm:
+        l2a2id[length][ialgorithm].append((iinputs,duration))
 for l, a2id in l2a2id.items():
     for a, ids in a2id.items():
         ids.sort()
 n = 0
 for l, a2id in l2a2id.items():
+    print(n)
     n += 1
     vals = []
     #plt.figure(n)
