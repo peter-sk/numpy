@@ -310,7 +310,7 @@ quicksort_fns(type *start, npy_intp num)
     int n;
 #elif FNS_TYPE == FNS_PADDED
     type *original_start = start;
-    start = new type[num+NPY_SORT_POWER];
+    start = (type *)std::malloc(sizeof(type)*(num+NPY_SORT_POWER));
     std::memcpy(start,original_start,num*sizeof(type));
     for (i = num; i < num+NPY_SORT_POWER; i++) {
         start[i] = max_int;
@@ -1697,7 +1697,7 @@ quicksort_fns(type *start, npy_intp num)
 
 #if FNS_TYPE == FNS_PADDED
     std::memcpy(original_start,start,num*sizeof(type));
-    delete[] start;
+    std::free(start);
     start = original_start;
 #endif
 #ifdef NPY_SORT_CHECK
