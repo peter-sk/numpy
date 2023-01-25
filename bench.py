@@ -9,7 +9,7 @@ import timeit
 
 def bench(size,nptype,number,repeat):
     sys.path[0] = str(next(pathlib.Path("build").glob('lib*')))
-    durations = timeit.repeat(setup='import numpy as np; np.random.seed(42); a = [np.random.randint(low=-1000000,high=1000001,size='+str(size)+').astype(dtype=np.'+nptype+') for _ in range('+str(number)+')]',number=number,repeat=repeat,stmt='b,a = a[0],a[1:]; b.sort()',timer=time.process_time)
+    durations = timeit.repeat(setup='import numpy as np; np.random.seed(42); a = [np.random.randint(low=-65432,high=65432+1,size='+str(size)+').astype(dtype=np.'+nptype+') for _ in range('+str(number)+')]',number=number,repeat=repeat,stmt='b,a = a[0],a[1:]; b.sort()',timer=time.process_time)
     print(min(durations)/number)
 
 def power(n):
