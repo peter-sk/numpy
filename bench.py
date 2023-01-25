@@ -19,8 +19,9 @@ def power(n):
     return i
 
 def compile(sorttype,inputs):
-    main, sub = sorttype.split('_')
-    print("# compiling %s_%s for %d inputs at %s" % (main, sub, inputs, str(datetime.datetime.now())))
+    main, sub, swap = sorttype.split('_')
+    swap = int(swap)
+    print("# compiling %s_%s_%d for %d inputs at %s" % (main, sub, swap, inputs, str(datetime.datetime.now())))
     main, sub = main.upper(), sub.upper()
     npysort = pathlib.Path("numpy") / "core" / "src" / "npysort"
     [p.touch() for p in npysort.glob("*q*.cpp")]
@@ -28,9 +29,10 @@ def compile(sorttype,inputs):
     text = config.read_text().split("//")[0]+"""//
 #define NPY_SORT_TYPE NPY_SORT_%s
 #define %s_TYPE %s_%s
+#define SWAP_TYPE %d
 #define NPY_SORT_BASE %d
 #define NPY_SORT_POWER %d
-""" % (main,main,main,sub,inputs,power(inputs))
+""" % (main,main,main,sub,swap,inputs,power(inputs))
     config.write_text(text)
     try:
         subprocess.run([sys.executable,'setup.py','build','-j','8'],check=True,capture_output=True,encoding='latin1')

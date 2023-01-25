@@ -1,14 +1,14 @@
 DEBUGGING:
 * check why NPY_SORT_BASE+1 is needed for temp (valgrind?)
-* fix float128 for SWAP_TYPE == 4: ./bench.py fns_overlap 4 10 float128 1 1
 BENCHMARKING:
-* integrate SWAP_TYPE (maybe more smartly than now?)
+* benchmark floats!
+* re-benchmark ints with more reps
 IDEAS:
 * use assembler (via builtin/intrinsic functions?)
+* find better way of swapping float128 and other floats via MMX registers?
 * not only powers of 2 - also some additional in betweens
 * block-deactivate comparators (reordering should help)
 * do we use reordered batchers in the numpy right now?
 PROBABLY NOT:
-* replace min max cmpexchange for avx512_bitonic by our exchange?
 * replace bitonic sorting network by optimal 16 inputs?
 * take all optimal until 16 or so - lots of the speedup for little code size

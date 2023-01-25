@@ -14,10 +14,9 @@
 
 #define NPY_SORT_DEBUG
 #define NPY_SORT_CHECK
-#define SWAP_TYPE 4
-
 //
 #define NPY_SORT_TYPE NPY_SORT_FNS
 #define FNS_TYPE FNS_OVERLAP
+#define SWAP_TYPE 6
 #define NPY_SORT_BASE 16
 #define NPY_SORT_POWER 16

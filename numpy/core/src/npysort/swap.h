@@ -11,6 +11,8 @@
 #define SWAP(x,y) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; cast ndy = *(cast *)&dy ^ *(cast *)&dx ^ *(cast *)&tmp; d[y] = *(type *)&ndy; }
 #elif SWAP_TYPE == 5 // 21287 31087
 #define SWAP(x,y) { type dx = d[x]; d[x] = dx < d[y] ? dx : d[y]; cast ndy = *(cast *)(d+y) ^ *(cast *)&dx ^ *(cast *)(d+x); d[y] = *(type *)&ndy; }
+#elif SWAP_TYPE == 6 // 
+#define SWAP(x,y) { type dx = d[x]; type dy = d[y]; type tmp = d[x] = dx < dy ? dx : dy; cast ndy[2]; ndy[0] = *(cast *)&dy ^ *(cast *)&dx ^ *(cast *)&tmp; ndy[1] = *(((cast *)&dy)+1) ^ *(((cast *)&dx)+1) ^ *(((cast *)&tmp)+1); d[y] = *(type *)ndy; }
 #endif
 
 #if FNS_TYPE == FNS_GUARDED
