@@ -1,4 +1,3 @@
-#define SWAP_TYPE 4
                      // 25318 30532
 #if SWAP_TYPE == 0   // 28511 30624
 #define SWAP(x,y) { if (d[x] > d[y]) { type dy = d[y]; d[y] = d[x]; d[x] = dy; } }

@@ -3,8 +3,8 @@ DEBUGGING:
 * fix float128 for SWAP_TYPE == 4: ./bench.py fns_overlap 4 10 float128 1 1
 BENCHMARKING:
 * integrate SWAP_TYPE (maybe more smartly than now?)
-* re-bench SWAPN via conditional moves
 IDEAS:
+* use assembler (via builtin/intrinsic functions?)
 * not only powers of 2 - also some additional in betweens
 * block-deactivate comparators (reordering should help)
 * do we use reordered batchers in the numpy right now?
