@@ -1,11 +1,26 @@
 #include "swap.h"
 
+#define LOAD(x,y) "movl %" #x ", %%r" #y "d\n\t"
+#define COMP(x,y) "movl %%r" #x "d, %%eax\n\tcmpl %%r" #x "d, %%r" #y "d\n\tcmovll %%r" #y "d, %%r" #x "d\n\tcmovll %%eax, %%r" #y "d\n\t"
+#define STORE(x,y) "movl %%r" #x "d, %" #y "\n\t"
+
 #if NPY_SORT_BASE > 1
     template <typename type, typename cast> void sort_2(type *d, int n) {
         if (n <= 1) {
             return;
         }
+/*
+        asm volatile (
+            LOAD(0,8)
+            LOAD(1,9)
+            COMP(8,9)
+            STORE(8,0)
+            STORE(9,1)
+            :"=m" (d[0]), "=m" (d[1])
+            ::"%eax","r8d","r9d");
+/*/
         SWAP(0, 1);
+
     }
 #endif
 
@@ -15,11 +30,30 @@
             sort_2<type, cast>(d,n);
             return;
         }
+/*
+        asm volatile (
+            LOAD(0,8)
+            LOAD(1,9)
+            LOAD(2,10)
+            LOAD(3,11)
+            COMP(8,10)
+            COMP(9,11)
+            COMP(8,9)
+            COMP(10,11)
+            COMP(9,10)
+            STORE(8,0)
+            STORE(9,1)
+            STORE(10,2)
+            STORE(11,3)
+                      :"=m" (d[0]), "=m" (d[1]), "=m" (d[2]), "=m" (d[3])
+                      ::"%eax","%r8d","r9d","r10d","r11d");
+/*/
         SWAP(0, 2);
         SWAPN(1, 3);
         SWAP(0, 1);
         SWAPN(2, 3);
         SWAP(1, 2);
+
     }
 #endif
 
@@ -29,6 +63,46 @@
             sort_4<type, cast>(d,n);
             return;
         }
+/*
+        asm volatile (
+            LOAD(0,8)
+            LOAD(1,9)
+            LOAD(2,10)
+            LOAD(3,11)
+            LOAD(4,12)
+            LOAD(5,13)
+            LOAD(6,14)
+            LOAD(7,15)
+            COMP(8,12)
+            COMP(9,13)
+            COMP(10,14)
+            COMP(11,15)
+            COMP(8,10)
+            COMP(9,11)
+            COMP(12,14)
+            COMP(13,15)
+            COMP(10,12)
+            COMP(11,13)
+            COMP(8,9)
+            COMP(14,15)
+            COMP(10,11)
+            COMP(12,13)
+            COMP(9,12)
+            COMP(11,14)
+            COMP(9,10)
+            COMP(11,12)
+            COMP(13,14)
+            STORE(8,0)
+            STORE(9,1)
+            STORE(10,2)
+            STORE(11,3)
+            STORE(12,4)
+            STORE(13,5)
+            STORE(14,6)
+            STORE(15,7)
+                      :"=m" (d[0]), "=m" (d[1]), "=m" (d[2]), "=m" (d[3]), "=m" (d[4]), "=m" (d[5]), "=m" (d[6]), "=m" (d[7])
+                      ::"%eax","%r8d","r9d","r10d","r11d","%r12d","r13d","r14d","r15d");
+/*/
         SWAP(0, 4);
         SWAPN(1, 5);
         SWAPN(2, 6);
@@ -48,6 +122,7 @@
         SWAP(1, 2);
         SWAP(3, 4);
         SWAPN(5, 6);
+
     }
 #endif
 
